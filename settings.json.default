@@ -1,0 +1,6 @@
+{
+	"admin": "%admin%",
+	"t2tContract": "%t2t%",
+	"spPercentage": 40,
+	"verifierPercentage": 40
+}

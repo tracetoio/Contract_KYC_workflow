@@ -1,0 +1,206 @@
+"use strict";
+
+const syncRequest = require('sync-request');
+const Web3 = require('web3');
+const eutil = require('ethereumjs-util');
+const fs = require('fs');
+
+
+/*----------------------------------------------------------------*/
+/*---------------------SETUP ENVIRONMENT START--------------------*/
+const token_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/token.environment.version_latest.json';
+const contracts_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/contract.environment.version_latest.json';
+const details_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/details.environment.version_latest.json';
+let contracts = JSON.parse(syncRequest('GET', contracts_url).getBody());
+// let contracts = require("./environment.json")
+contracts.TraceToContracts.push(JSON.parse(syncRequest('GET', token_url).getBody()));
+
+global.environment = {};
+
+contracts.TraceToContracts.forEach(function(contract){
+	environment[contract.name] = {
+		address: contract.address,
+		abi: contract.abi
+	};
+});
+/*---------------------SETUP ENVIRONMENT END----------------------*/
+/*----------------------------------------------------------------*/
+
+/*----------------------------------------------------------------*/
+/*---------------------SETUP WEB3 START---------------------------*/
+
+const wss_url="wss://ropsten.infura.io/ws";
+let provider = new Web3.providers.WebsocketProvider(wss_url);
+
+provider.on('error', e => {
+	console.error('WS Error', e);
+	provider = new Web3.providers.WebsocketProvider(wss_url);
+	web3.setProvider(provider);
+});
+provider.on('end', e => {
+	console.error('WS End', e);
+	provider = new Web3.providers.WebsocketProvider(wss_url);
+	web3.setProvider(this.provider);
+});
+
+// let provider = new Web3.providers.HttpProvider("http://localhost:7545");
+
+let web3 = new Web3(provider);
+/*---------------------SETUP WEB3 END-----------------------------*/
+/*----------------------------------------------------------------*/
+
+/*----------------------------------------------------------------*/
+/*---------------------SETUP WALLET START-------------------------*/
+const adminPriKey = "%admin%";
+const RQPriKey    = "%rq%";
+const SPPriKey    = "%sp%";
+const RMISPPriKey = "%rmisp%";
+const VPriKey     = "%v%";
+
+
+web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(adminPriKey));
+web3.eth.defaultAccount = web3.eth.accounts.wallet[0].address;
+const adminAddress = web3.eth.accounts.wallet[0].address;
+const adminPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[0].privateKey).toString('hex');
+// console.log("Admin: ", adminAddress, adminPubKey, adminPriKey)
+
+web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(RQPriKey));
+web3.eth.defaultAccount = web3.eth.accounts.wallet[1].address;
+const RQAddress = web3.eth.accounts.wallet[1].address;
+const RQPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[1].privateKey).toString('hex');
+// console.log("RQ: ", RQAddress, RQPubKey, RQPriKey)
+
+web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(SPPriKey));
+web3.eth.defaultAccount = web3.eth.accounts.wallet[2].address;
+const SPAddress = web3.eth.accounts.wallet[2].address;
+const SPPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[2].privateKey).toString('hex');
+// console.log("SP: ", SPAddress, SPPubKey, SPPriKey)
+
+web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(RMISPPriKey));
+web3.eth.defaultAccount = web3.eth.accounts.wallet[3].address;
+const RMISPAddress = web3.eth.accounts.wallet[3].address;
+const RMISPPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].privateKey).toString('hex');
+// console.log("RMISP: ", RMISPAddress, RMISPPubKey, RMISPPriKey)
+
+web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(VPriKey));
+web3.eth.defaultAccount = web3.eth.accounts.wallet[3].address;
+const VAddress = web3.eth.accounts.wallet[3].address;
+const VPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].privateKey).toString('hex');
+// console.log("V: ", VAddress, VPubKey, VPriKey)
+/*---------------------SETUP WALLET END---------------------------*/
+/*----------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------*/
+/*---------------------SETUP CONTRACT START-----------------------*/
+let prContract = new web3.eth.Contract(environment.TraceToProfileResult.abi);
+let spContract = new web3.eth.Contract(environment.TraceToSPList.abi, environment.TraceToSPList.address);
+let rmispContract = new web3.eth.Contract(environment.TraceToRMISPList.abi, environment.TraceToRMISPList.address);
+let rqContract = new web3.eth.Contract(environment.TraceToRequestorList.abi, environment.TraceToRequestorList.address);
+let vContract = new web3.eth.Contract(environment.TraceToVerifierList.abi, environment.TraceToVerifierList.address);
+
+prContract.options.data = require("../build/contracts/TraceToProfileResult.json").bytecode;
+
+let addRQ = function(rq, gasPrice, callback){
+	rqContract.methods.addPendingRequestorPR(rq.address, rq.country, rq.name, rq.email, rq.uriForMoreDetails, rq.hashForMoreDetails)
+	.send({from: RQAddress, gas: 7500000, gasPrice: gasPrice * 4})
+	.then(function(receipt){
+		console.log(receipt);
+		rqContract.methods.approveRequestorPR(rq.address)
+		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
+		.then(function(receipt){
+			console.log(receipt);
+			callback()
+		});
+	});
+}
+
+let addSP = function(sp, gasPrice, callback){
+	spContract.methods.addPendingSP(sp.ratePerService, sp.companyName, sp.email, sp.uriForRubrics, sp.hashFroRubrics, sp.lv)
+	.send({from: SPAddress, gas: 7500000, gasPrice: gasPrice * 4})
+	.then(function(receipt){
+		console.log(receipt);
+		spContract.methods.approveSP(SPAddress)
+		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
+		.then(function(receipt){
+			console.log(receipt);
+			callback()
+		});
+	});
+}
+
+let addRMISP = function(rmisp, gasPrice, callback){
+	rmispContract.methods.addPendingSP(rmisp.ratePerService, rmisp.companyName, rmisp.email, rmisp.uriForRubrics, rmisp.hashFroRubrics, rmisp.lv)
+	.send({from: RMISPAddress, gas: 7500000, gasPrice: gasPrice * 4})
+	.then(function(receipt){
+		console.log(receipt);
+		rmispContract.methods.approveSP(RMISPAddress)
+		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
+		.then(function(receipt){
+			console.log(receipt);
+
+		});
+	});
+}
+
+let addV = function(v ,gasPrice, callback){
+	vContract.methods.addPendingVerifier(v.name, v.urlForUploading, v.hashForUploading, v.stake)
+	.send({from: VAddress, gas: 7500000, gasPrice: gasPrice * 4})
+	.then(function(receipt){
+		console.log(receipt);
+		vContract.methods.approveVerifier(VAddress)
+		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
+		.then(function(receipt){
+			console.log(receipt);
+
+		});
+	});
+}
+/*---------------------SETUP CONTRACT END-------------------------*/
+/*----------------------------------------------------------------*/
+
+/*----------------------------------------------------------------*/
+/*---------------------ADDING DATA START--------------------------*/
+web3.eth.getGasPrice(function(err, gasPrice){
+	prContract.options.gasPrice = gasPrice * 4;
+	prContract.options.gas = 7500000;
+
+	prContract.deploy({
+		arguments: [RQAddress, environment.TraceToMetaInfo.address, environment.TraceToServiceCredit.address, environment.TraceToRMIServiceCredit.address, RQPubKey]
+	}).send({
+		from: RQAddress,
+	}, console.log)
+	.on('error', console.log)
+	// .on('receipt', console.log)
+	// .on('confirmation', console.log)
+	.then(function(newContractInstance){
+		console.log("PR Deployed at "+newContractInstance.options.address);
+		prContract.options.address = newContractInstance.options.address;
+
+		let details = JSON.parse(syncRequest('GET', details_url).getBody());
+		// let details = require("./details.json")
+		details.rq.address = newContractInstance.options.address;
+
+		let rq = details.rq;
+		let sp = details.sp;
+		let rmisp = details.rmisp;
+		let v = details.v;
+		fs.writeFile(process.argv[2], JSON.stringify(details), 'utf8', console.log());
+
+		addRQ(rq, gasPrice, function(){
+			addSP(sp, gasPrice, function(){
+				addRMISP(rmisp, gasPrice, function(){
+					addV(v, gasPrice, function(){
+						console.log("DONE!");
+						process.exit();
+					})
+				})
+			})
+		})
+	})
+})
+/*---------------------ADDING DATA END----------------------------*/
+/*----------------------------------------------------------------*/
+
+
+
