@@ -3,13 +3,13 @@ var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
-var TracetoUnlockProfile = artifacts.require("../contracts/TracetoUnlockProfile.sol");
+var TraceToUnlockProfile = artifacts.require("../contracts/TraceToUnlockProfile.sol");
 
 var utils = require("../test/utils.js");
 var BigNumber = require('bignumber.js');
-contract('TracetoUnlockProfile', function(accounts) {
+contract('TraceToUnlockProfile', function(accounts) {
 	let t2tTokenContract;
 	let tracetoUnlockProfile;
 
@@ -36,7 +36,7 @@ contract('TracetoUnlockProfile', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -75,7 +75,7 @@ contract('TracetoUnlockProfile', function(accounts) {
         await vList.approveVerifier(v5, 3, {from: admin});
 
 
-        tracetoUnlockProfile = await TracetoUnlockProfile.new(admin, metaInfo.address, {from: accounts[9]});
+        tracetoUnlockProfile = await TraceToUnlockProfile.new(admin, metaInfo.address, {from: accounts[9]});
 	})
 	it('has an owner', async () => {
         assert.equal(await tracetoUnlockProfile.owner(), admin);

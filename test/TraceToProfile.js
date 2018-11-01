@@ -3,7 +3,7 @@ var TraceToProfile = artifacts.require("../contracts/TraceToProfile.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
 var utils = require("../test/utils.js");
 
@@ -21,7 +21,7 @@ contract('TraceToProfile', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
