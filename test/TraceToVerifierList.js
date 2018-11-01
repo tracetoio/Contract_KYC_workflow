@@ -1,15 +1,15 @@
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 var utils = require("../test/utils.js");
 
 var BigNumber = require('bignumber.js');
-contract('TracetoVerifierList', function(accounts) {
+contract('TraceToVerifierList', function(accounts) {
     let tracetoVerifierList;
 
     let emptyAddr = "0x0000000000000000000000000000000000000000";
   
     beforeEach('setup contract for each test', async () => {
         let admin = accounts[8];
-        tracetoVerifierList = await TracetoVerifierList.new(admin, {from: accounts[9]})
+        tracetoVerifierList = await TraceToVerifierList.new(admin, {from: accounts[9]})
     })
 
     it('has an owner', async () => {

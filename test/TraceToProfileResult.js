@@ -3,9 +3,9 @@ var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
-var TracetoServiceCredit = artifacts.require("../contracts/TracetoServiceCredit.sol");
+var TraceToServiceCredit = artifacts.require("../contracts/TraceToServiceCredit.sol");
 var TraceToRMIServiceCredit = artifacts.require("../contracts/TraceToRMIServiceCredit.sol");
 
 var TraceToProfileResult = artifacts.require("../contracts/TraceToProfileResult.sol");
@@ -44,7 +44,7 @@ contract('TraceToProfileResult', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -69,7 +69,7 @@ contract('TraceToProfileResult', function(accounts) {
         await rmispList.addPendingSP(rate, spname, spemail, uriForRubrics, hashFroRubrics, lv, {from: rmiSP});
         await rmispList.approveSP(rmiSP, {from: admin});
 
-        tracetoServiceCredit = await TracetoServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
+        tracetoServiceCredit = await TraceToServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
         tracetoRMIServiceCredit = await TraceToRMIServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
 
         let rqcountry = 'Singapore';

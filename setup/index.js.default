@@ -83,9 +83,9 @@ const RMISPPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].priva
 // console.log("RMISP: ", RMISPAddress, RMISPPubKey, RMISPPriKey)
 
 web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(VPriKey));
-web3.eth.defaultAccount = web3.eth.accounts.wallet[3].address;
-const VAddress = web3.eth.accounts.wallet[3].address;
-const VPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].privateKey).toString('hex');
+web3.eth.defaultAccount = web3.eth.accounts.wallet[4].address;
+const VAddress = web3.eth.accounts.wallet[4].address;
+const VPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[4].privateKey).toString('hex');
 // console.log("V: ", VAddress, VPubKey, VPriKey)
 /*---------------------SETUP WALLET END---------------------------*/
 /*----------------------------------------------------------------*/
@@ -138,7 +138,7 @@ let addRMISP = function(rmisp, gasPrice, callback){
 		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
 		.then(function(receipt){
 			console.log(receipt);
-
+			callback();
 		});
 	});
 }
@@ -148,11 +148,11 @@ let addV = function(v ,gasPrice, callback){
 	.send({from: VAddress, gas: 7500000, gasPrice: gasPrice * 4})
 	.then(function(receipt){
 		console.log(receipt);
-		vContract.methods.approveVerifier(VAddress)
+		vContract.methods.approveVerifier(VAddress, 3)
 		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
 		.then(function(receipt){
 			console.log(receipt);
-
+			callback();
 		});
 	});
 }

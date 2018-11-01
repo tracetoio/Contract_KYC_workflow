@@ -3,13 +3,13 @@ var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
-var TracetoServiceCredit = artifacts.require("../contracts/TracetoServiceCredit.sol");
+var TraceToServiceCredit = artifacts.require("../contracts/TraceToServiceCredit.sol");
 
 var utils = require("../test/utils.js");
 var BigNumber = require('bignumber.js');
-contract('TracetoServiceCredit', function(accounts) {
+contract('TraceToServiceCredit', function(accounts) {
 	let t2tTokenContract;
 	let tracetoServiceCredit;
 
@@ -42,7 +42,7 @@ contract('TracetoServiceCredit', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -73,7 +73,7 @@ contract('TracetoServiceCredit', function(accounts) {
         await spList.addPendingSP(rate, spname, spemail, uriForRubrics, hashFroRubrics, lv, {from: sp});
         await spList.approveSP(sp, {from: admin});
 
-        tracetoServiceCredit = await TracetoServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
+        tracetoServiceCredit = await TraceToServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
 	})
 
 	it('has an owner', async () => {
