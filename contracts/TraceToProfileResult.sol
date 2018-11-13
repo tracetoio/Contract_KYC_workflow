@@ -191,7 +191,7 @@ contract TraceToProfileResult is Ownable{
     /** 
       * @dev get balance for one SP
       * @param _sp the sp going to be checked
-      * @return tokenCount the token balance
+      * @return tokenCount the token deposit in the SC contract
       * @return serviceCount the service count balance
       */
     function getServiceBalance(address _sp)
@@ -203,9 +203,9 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev get balance for one SP
+      * @dev get balance for one RMI SP
       * @param _sp the sp going to be checked
-      * @return tokenCount the token balance
+      * @return tokenCount the token deposit in the RMI SC contract
       * @return serviceCount the service count balance
       */
     function getRMIServiceBalance(address _sp)

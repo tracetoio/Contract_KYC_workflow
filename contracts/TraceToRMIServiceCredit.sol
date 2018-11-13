@@ -81,7 +81,7 @@ contract TraceToRMIServiceCredit is Ownable{
     }
 
     /**
-      * @dev topup for one sp, it will withdraw t2t token from your wallet
+      * @dev topup for one sp, it will withdraw t2t token from your wallet as deposit
       * @param _requestor the requestor PR contract address
       * @param _sp the sp address
       * @param _count the service count
@@ -104,9 +104,9 @@ contract TraceToRMIServiceCredit is Ownable{
     }
 
     /**
-      * @dev set the profile as pending, deduct the balance
+      * @dev return the remaining token deposit and service count
       * @param _sp the sp address
-      * @return tokenCount the token balance
+      * @return tokenCount the token deposit in this contract
       * @return serviceCount the service count balance
       */
     function getBalance(address _sp)
