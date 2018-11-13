@@ -19,8 +19,13 @@ contract TraceToMetaInfo is Ownable{
 
     address public unlockProfile;
 
+    address public stakeWallet;
+    address public verifierTokenDistribution;
+
     uint256 public SPPercentage;
     uint256 public VerifierPercentage;
+
+    uint256 public minimalStakeAmount;
 
     string public uriForInfoTemplate;
     string public hashForInfoTemplate;
@@ -77,6 +82,26 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
+      * @dev set verifier token distribution contract
+      * @param _verifierTokenDistribution the address of verifier token distribution contract
+      */
+    function setVerifierTokenDistribution(address _verifierTokenDistribution)
+    public
+    onlyOwner {
+        verifierTokenDistribution = _verifierTokenDistribution; 
+    }
+
+    /**  
+      * @dev set stake wallet contract
+      * @param _stakeWallet the address of stake wallet contract
+      */
+    function setStakeWallet(address _stakeWallet)
+    public
+    onlyOwner {
+        stakeWallet = _stakeWallet;
+    }
+
+    /**  
       * @dev set unlock profile contract
       * @param _UPcontract the address of unlock profile contract
       */
@@ -106,6 +131,16 @@ contract TraceToMetaInfo is Ownable{
     onlyOwner {
         require(_VerifierPercentage.add(SPPercentage) < 90);
         VerifierPercentage = _VerifierPercentage;
+    }
+
+    /**  
+      * @dev set amount for how much token verifiers need to deposit before joining
+      * @param _minimalStakeAmount the amount of usdt
+      */
+    function setMinimalStakeAmount(uint256 _minimalStakeAmount) 
+    public
+    onlyOwner {
+        minimalStakeAmount = _minimalStakeAmount;
     }
 
     /**  
@@ -175,6 +210,28 @@ contract TraceToMetaInfo is Ownable{
       return spRMIWL;
     }
 
+    /**  
+      * @dev get verifier token distribution contract
+      * @return _verifierTokenDistribution the address of verifier token distribution contract
+      */
+    function getVerifierTokenDistribution()
+    public
+    view
+    returns (address _verifierTokenDistribution) {
+        return verifierTokenDistribution; 
+    }
+
+    /**  
+      * @dev get stake wallet contract
+      * @return _stakeWallet the address of stake wallet contract
+      */
+    function getStakeWallet()
+    public
+    view
+    returns (address _stakeWallet) {
+        return stakeWallet;
+    }
+
     
     /**  
       * @dev get unlock profile contract
@@ -207,6 +264,17 @@ contract TraceToMetaInfo is Ownable{
     view
     returns (uint256 _VerifierPercentage) {
         return VerifierPercentage;
+    }
+
+    /**  
+      * @dev get amount for how much token verifiers need to deposit before joining
+      * @return _minimalStakeAmount the amount of usdt
+      */
+    function getMinimalStakeAmount() 
+    public
+    view
+    returns (uint256 _minimalStakeAmount)  {
+        return minimalStakeAmount;
     }
 
     /**  

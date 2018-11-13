@@ -37,15 +37,15 @@ contract TraceToProfileResult is Ownable{
         uint256 expire;
     }
 
-    mapping(string => Info) profileInfo;
+    mapping(uint256 => Info) profileInfo;
 
-    event ProfileConsent(string profile, string consent);
-    event ProfileRMI(string profile);
-    event ResultSet(address sp, string profile);
-    event RMIResultSet(address sp, string profile);
+    event ProfileConsent(uint256 profile, string consent);
+    event ProfileRMI(uint256 profile);
+    event ResultSet(address sp, uint256 profile);
+    event RMIResultSet(address sp, uint256 profile);
 
-    event RMI(string profile);
-    event RENEW(string profile);
+    event RMI(uint256 profile);
+    event RENEW(uint256 profile);
 
     /**
       * @dev only service providers
@@ -86,7 +86,7 @@ contract TraceToProfileResult is Ownable{
       * @param _profile the profile hash
       * @param _consent the consent from the profile owner
       */
-    function addPending(string _profile, string _consent)
+    function addPending(uint256 _profile, string _consent)
     public
     onlyOwner
     payable {
@@ -100,7 +100,7 @@ contract TraceToProfileResult is Ownable{
       * @dev Requestor can set a profile as pending for RMI checking
       * @param _profile the profile hash
       */
-    function addRMIPending(string _profile)
+    function addRMIPending(uint256 _profile)
     public
     onlyOwner
     payable {
@@ -113,7 +113,7 @@ contract TraceToProfileResult is Ownable{
      * @param _profile the profile hash
      * @param _reason the reason for unlocking this profile
      */
-    function requestProfileKey(string _profile, string _reason)
+    function requestProfileKey(uint256 _profile, string _reason)
     public
     onlyOwner
     payable {
@@ -125,7 +125,7 @@ contract TraceToProfileResult is Ownable{
       * @param _profile the profile hash
       * @param _sp the sp who provided the result
       */
-    function setFinished(string _profile, address _sp)
+    function setFinished(uint256 _profile, address _sp)
     public
     onlyOwner
     payable {
@@ -137,7 +137,7 @@ contract TraceToProfileResult is Ownable{
       * @param _profile the profile hash
       * @param _sp the sp who provided the result
       */
-    function setRMIFinished(string _profile, address _sp)
+    function setRMIFinished(uint256 _profile, address _sp)
     public
     onlyOwner
     payable {
@@ -151,7 +151,7 @@ contract TraceToProfileResult is Ownable{
       * @param _decay the decay timestamp for this profile
       * @param _expire the expire timestamp for this profile
       */
-    function setResult(string _profile, string _result, uint256 _decay, uint256 _expire)
+    function setResult(uint256 _profile, string _result, uint256 _decay, uint256 _expire)
     public
     onlySP
     payable {
@@ -173,7 +173,7 @@ contract TraceToProfileResult is Ownable{
       * @param _decay the decay timestamp for this profile
       * @param _expire the expire timestamp for this profile
       */
-    function setRMIResult(string _profile, string _result, uint256 _decay, uint256 _expire)
+    function setRMIResult(uint256 _profile, string _result, uint256 _decay, uint256 _expire)
     public
     onlyRMISP
     payable {
@@ -222,7 +222,7 @@ contract TraceToProfileResult is Ownable{
       * @param _idx the idx of the key piece, will remove if solidity allow string[] returns later
       * @return keyPieces the requested key piece
       */
-    function getProfileKey(string _profileHash, uint256 _idx)
+    function getProfileKey(uint256 _profileHash, uint256 _idx)
     public
     view
     returns(string keyPieces){
@@ -245,7 +245,7 @@ contract TraceToProfileResult is Ownable{
       * @param _profile the profile hash
       * @return consent the consent of this profile
       */
-    function getConsent(string _profile)
+    function getConsent(uint256 _profile)
     public
     view
     returns (string consent){
@@ -257,7 +257,7 @@ contract TraceToProfileResult is Ownable{
       * @param _profile the profile hash
       * @return expire the expire timestamp
       */
-    function getExpireDate(string _profile)
+    function getExpireDate(uint256 _profile)
     public
     view
     returns (uint256 expire){
@@ -273,7 +273,7 @@ contract TraceToProfileResult is Ownable{
       * @return decay the decay timestamp
       * @return expire the expire timestamp
       */
-    function getResult(string _profile, address _sp)
+    function getResult(uint256 _profile, address _sp)
     public
     view
     returns (string results, uint256 decay, uint256 expire){
@@ -288,7 +288,7 @@ contract TraceToProfileResult is Ownable{
       * @return decay the decay timestamp
       * @return expire the expire timestamp
       */
-    function getRMIResult(string _profile, address _sp)
+    function getRMIResult(uint256 _profile, address _sp)
     public
     view
     returns (string results, uint256 decay, uint256 expire){
@@ -299,7 +299,7 @@ contract TraceToProfileResult is Ownable{
       * @dev emit a renew event for one profile
       * @param _profile the profile hash
       */
-    function emitRENEW(string _profile)
+    function emitRENEW(uint256 _profile)
     public
     onlyOwner
     payable {
@@ -310,7 +310,7 @@ contract TraceToProfileResult is Ownable{
       * @dev emit a rmi event for one profile
       * @param _profile the profile hash
       */
-    function emitRMI(string _profile)
+    function emitRMI(uint256 _profile)
     public
     onlyOwner
     payable {

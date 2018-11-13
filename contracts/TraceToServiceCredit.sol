@@ -36,7 +36,7 @@ contract TraceToServiceCredit is Ownable{
         mapping(address => Payment) pending;
     }
 
-    mapping(string => RequestorPayment) PendingPayment; 
+    mapping(uint256 => RequestorPayment) PendingPayment; 
 
     TraceToMetaInfo public tracetoMetaInfo;
 
@@ -61,8 +61,8 @@ contract TraceToServiceCredit is Ownable{
     }
 
     event Topup(address requestor, address sp, uint256 count);
-    event Pending(address requestor, address sp, string profile);
-    event Finished(address requestor, address sp, string profile);
+    event Pending(address requestor, address sp, uint256 profile);
+    event Finished(address requestor, address sp, uint256 profile);
 
     /** 
       * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
@@ -124,7 +124,7 @@ contract TraceToServiceCredit is Ownable{
       * @dev set the profile as pending, deduct the balance
       * @param _profile the profile hash
       */
-    function addPending(string _profile)
+    function addPending(uint256 _profile)
     public
     onlyRequestor {
         for(uint256 idx = 0; idx < ServiceCredit[msg.sender].spCount; idx = idx.add(1)){
@@ -145,7 +145,7 @@ contract TraceToServiceCredit is Ownable{
       * @param _profile the profile hash
       * @param _sp the sp who provide the result
       */
-    function setFinished(string _profile, address _sp)
+    function setFinished(uint256 _profile, address _sp)
     public
     onlyRequestor {
         assert(

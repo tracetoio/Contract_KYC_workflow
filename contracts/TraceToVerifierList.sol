@@ -3,6 +3,9 @@ import "./lib/Whitelist.sol";
 import "./lib/SafeMath.sol";
 import "./lib/Token.sol";
 
+import "./TraceToStakeWallet.sol";
+import "./TraceToPendingToken.sol";
+
 /**
  * @title TraceToVerifierList
  * @dev This contract is the whitelist contract for verifiers.
@@ -11,10 +14,8 @@ contract TraceToVerifierList is Ownable, Whitelist {
     using SafeMath for uint256;
     struct meta {
         uint256 reputation;
-        string name;
         string urlForUploading;
         string hashForUploading;
-        address stake;
         uint256 tier;
         uint256 idx;
     }
@@ -29,6 +30,9 @@ contract TraceToVerifierList is Ownable, Whitelist {
     address[] verifierT1List;
     address[] verifierT2List;
     address[] verifierT3List;
+
+    TraceToStakeWallet public tracetoStakeWallet;
+    TraceToPendingToken public tracetoPendingToken;
 
     event NewPendingVerifier(address verifier);
     event UrlUpdated(address verifier, string url);
@@ -47,16 +51,35 @@ contract TraceToVerifierList is Ownable, Whitelist {
       */
     constructor( address owner ) Whitelist(owner) public {}
 
+    /** 
+      * @dev set the address of tracetoStakeWallet address
+      * @param _tracetoStakeWallet the address of tracetoStakeWallet address
+      */
+    function setTraceToStakeWallet(address _tracetoStakeWallet)
+    public
+    onlyOwner{
+      tracetoStakeWallet = TraceToStakeWallet(_tracetoStakeWallet);
+    }
+
+    /** 
+      * @dev set the address of the tracetoPendingToken contract
+      * @param _tracetoPendingToken the address of tracetoPendingToken contract
+      */
+    function setTraceToPendingToken(address _tracetoPendingToken)
+    public
+    onlyOwner{
+      tracetoPendingToken = TraceToPendingToken(_tracetoPendingToken);
+    }
+
     /**  
       * @dev add the current wallet as a pending verifier
-      * @param _name name for this verifier
       * @param _urlForUploading the url for end user to upload their profiles
       * @param _hashForUploading the hash for the url
-      * @param _stake the wallet to keep t2t tokens, will use this in next phase
       */
-    function addPendingVerifier(string _name, string _urlForUploading, string _hashForUploading, address _stake)
+    function addPendingVerifier(string _urlForUploading, string _hashForUploading)
     public {
-        pendingMetaInfo[msg.sender] = meta(100, _name, _urlForUploading, _hashForUploading, _stake, 0, 0);
+        tracetoStakeWallet.preDeposit(msg.sender);
+        pendingMetaInfo[msg.sender] = meta(100, _urlForUploading, _hashForUploading, 0, 0);
 
         emit NewPendingVerifier(msg.sender);
     }
@@ -91,6 +114,7 @@ contract TraceToVerifierList is Ownable, Whitelist {
 
         delete pendingMetaInfo[_verifier];
         addAddressToWhitelist(_verifier);
+        tracetoPendingToken.initVerifier(_verifier);
     }
 
     /**
@@ -134,6 +158,7 @@ contract TraceToVerifierList is Ownable, Whitelist {
 
         delete metaInfo[_verifier];
         removeAddressFromWhitelist(_verifier);
+        tracetoStakeWallet.withdraw(msg.sender);
     }
 
 
@@ -258,32 +283,38 @@ contract TraceToVerifierList is Ownable, Whitelist {
       * @dev check get details of a pending verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getPendingVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].name, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading, pendingMetaInfo[_verifier].stake);
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading);
     }
 
     /**
       * @dev check get details of a verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (metaInfo[_verifier].reputation, metaInfo[_verifier].name, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading, metaInfo[_verifier].stake);
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (metaInfo[_verifier].reputation, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading);
+    }
+
+    /**
+      * @dev pay a verifier with an amount, need to approve tracetoPendingToken contract first
+      * @param _verifier the verifier wallet to pay
+      * @param _amount the amount of token to pay
+      */
+    function payVerifer(address _verifier, uint256 _amount)
+    public {
+        tracetoPendingToken.pay(msg.sender, _verifier, _amount);
     }
 
     /**

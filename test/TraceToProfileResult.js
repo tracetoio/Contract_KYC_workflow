@@ -30,6 +30,8 @@ contract('TraceToProfileResult', function(accounts) {
 
 	const rate = 20;
 
+    const profileIdx = 1;
+
 	beforeEach('setup contract for each test', async () => {
 		t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
 
@@ -109,7 +111,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
 
     it('should be able to set pending', async () => {
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test consent";
         await tracetoProfileResult.addPending(profile, consent, {from: rq});
         let balance = await tracetoProfileResult.getServiceBalance.call(sp, {from: rq});
@@ -123,7 +125,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set result by sp', async () => {
 
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -165,7 +167,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result by not sp', async () => {
 
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -206,7 +208,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result with invalid time', async () => {
 
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -253,7 +255,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set finished by rq', async () => {
 
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -276,7 +278,7 @@ contract('TraceToProfileResult', function(accounts) {
 
     it('should be not able to set finished by not rq', async () => {
 
-        let profile = "test profile";
+        let profile = profileIdx;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 

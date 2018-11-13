@@ -27,6 +27,8 @@ contract('TraceToServiceCredit', function(accounts) {
 
 	const rate = 20;
 
+    const profileIdx = 1;
+
 	beforeEach('setup contract for each test', async () => {
 		t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
 
@@ -129,7 +131,7 @@ contract('TraceToServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
     	await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
     	await tracetoServiceCredit.addPending(profile, {from: rqPR});
 
     	let balance = await tracetoServiceCredit.getBalance.call(sp, {from: rqPR});
@@ -141,7 +143,7 @@ contract('TraceToServiceCredit', function(accounts) {
         await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
         await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-        let profile = 'profile 0';
+        let profile = profileIdx;
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
 
         let balance = await tracetoServiceCredit.getBalance.call(sp, {from: rqPR});
@@ -162,7 +164,7 @@ contract('TraceToServiceCredit', function(accounts) {
     })
 
     it('should be not able to set a profile as pending if there is not enough balance', async () => {
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
 
     	await utils.expectThrow(tracetoServiceCredit.addPending(profile, {from: rqPR}));
 
@@ -175,7 +177,7 @@ contract('TraceToServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
     	await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
     	await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
 
@@ -186,7 +188,7 @@ contract('TraceToServiceCredit', function(accounts) {
         await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
         await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-        let profile = 'profile 0';
+        let profile = profileIdx;
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
 

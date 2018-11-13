@@ -27,6 +27,8 @@ contract('TraceToRMIServiceCredit', function(accounts) {
 
 	const rate = 20;
 
+    const profileIdx = 1;
+
 	beforeEach('setup contract for each test', async () => {
 		t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
 
@@ -118,7 +120,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
     	await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
     	await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
 
     	let balance = await tracetoRMIServiceCredit.getBalance.call(rmiSP, {from: rqPR});
@@ -127,7 +129,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     })
 
     it('should be not able to set a profile as pending if there is not enough balance', async () => {
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
 
     	await utils.expectThrow(tracetoRMIServiceCredit.addPending(profile, {from: rqPR}));
 
@@ -140,7 +142,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
     	await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = profileIdx;
     	await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
     	await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
 

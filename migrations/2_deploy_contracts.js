@@ -5,7 +5,7 @@ let UnlockProfile = artifacts.require("./TraceToUnlockProfile.sol");
 
 let MetaInfo = artifacts.require("./TraceToMetaInfo.sol");
 
-let Profile = artifacts.require("./TraceToProfile.sol");
+let ProfileToken = artifacts.require("./TraceToProfileToken.sol");
 let ServiceCredit = artifacts.require("./TraceToServiceCredit.sol");
 let RMIServiceCredit = artifacts.require("./TraceToRMIServiceCredit.sol");
 
