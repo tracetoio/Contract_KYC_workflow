@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./lib/Whitelist.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
 
 import "./TraceToStakeWallet.sol";
 import "./TraceToPendingToken.sol";

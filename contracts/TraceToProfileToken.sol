@@ -1,11 +1,16 @@
 pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
+
+import "./TraceToKYCToken.sol";
+
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./lib/Token.sol";
-import "./lib/SafeMath.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./TraceToMetaInfo.sol";
 import "./TraceToRequestorList.sol";
 import "./TraceToVerifierList.sol";
+
+
 
 /**
  * @title TraceToProfile
@@ -27,16 +32,9 @@ contract TraceToProfileToken is Ownable{
         mapping(uint256 => uint256) kycTokenIdList;
     }
 
-    struct KYCToken {
-        uint256 owner;
-        address requestor;
-        string uriForReputation;
-        uint256 decay;
-        uint256 expire;
-    }
 
     mapping(uint256 => ProfileToken) profileTokens;
-    mapping(uint256 => KYCToken) kycTokens;
+    mapping(address => address) public kycTokenContracts;
 
     mapping(address => UserProfileTokens) UserProfileTokenList;
 
@@ -60,8 +58,8 @@ contract TraceToProfileToken is Ownable{
         _;
     }
 
-    event ProfileTokenAssigned(address _user, uint256 tokenId);
-    event KYCTokenAssigned(uint256 profileTokenId, uint256 kycTokenId);
+    event ProfileTokenAssigned(address user, uint256 tokenId, string profileHash);
+    event KYCTokenContractDeployed(address requestorPR, address kycTokenContract);
 
     /** 
       * @dev constructor of this contract, it will transfer ownership and use the verifier list set in meta info contract 
@@ -90,20 +88,16 @@ contract TraceToProfileToken is Ownable{
         UserProfileTokenList[_user].totalProfileTokens = UserProfileTokenList[_user].totalProfileTokens.add(1);
         
         profileTokens[_tokenCount] = ProfileToken(_user, _profileHash, _ipfs, 0);
-        emit ProfileTokenAssigned(_user, _tokenCount);
+        emit ProfileTokenAssigned(_user, _tokenCount, _profileHash);
     }
 
-    function assignKYCToken(uint256 tokenId, string uriForReputation, uint256 decay, uint256 expire)
+    function initKYCTokenContract()
     public
-    onlyRequestor {
-        kycTokenCount = kycTokenCount.add(1);
-        uint256 _tokenCount = kycTokenCount;
-
-        profileTokens[tokenId].kycTokenIdList[profileTokens[tokenId].totalKYCTokens] = kycTokenCount;
-        profileTokens[tokenId].totalKYCTokens = profileTokens[tokenId].totalKYCTokens.add(1);
-
-        kycTokens[_tokenCount] = KYCToken(tokenId, msg.sender, uriForReputation, decay, expire);
-        emit KYCTokenAssigned(tokenId, _tokenCount);
+    onlyRequestor{
+        require(kycTokenContracts[msg.sender]==address(0));
+        TraceToKYCToken kycToken = new TraceToKYCToken(msg.sender);
+        kycTokenContracts[msg.sender] = kycToken;
+        emit KYCTokenContractDeployed(msg.sender, kycToken);
     }
 
     function ownerOfProfileToken(uint256 tokenId)
@@ -111,13 +105,6 @@ contract TraceToProfileToken is Ownable{
     view
     returns (address owner){
         return profileTokens[tokenId].owner;
-    }
-
-    function ownerOfKYCToken(uint256 tokenId)
-    public
-    view
-    returns (address owner){
-        return profileTokens[kycTokens[tokenId].owner].owner;
     }
 
     function getProfile(uint256 tokenId)
@@ -144,28 +131,6 @@ contract TraceToProfileToken is Ownable{
         }
     }
 
-    function getKYC(uint256 tokenId)public
-    view
-    returns (address _requestor, string _uriForReputation, uint256 _decay, uint256 _expire){
-        return (kycTokens[tokenId].requestor, kycTokens[tokenId].uriForReputation, kycTokens[tokenId].decay, kycTokens[tokenId].expire);
-    }
-
-    function getProfileKYCCount(uint256 tokenId)
-    public
-    view
-    returns (uint256 _kycCount){
-        return profileTokens[tokenId].totalKYCTokens;
-    }
-
-    function getProfileKYCs(uint256 tokenId)
-    public
-    view
-    returns (uint256[] _kycTokens){
-        _kycTokens = new uint256[](profileTokens[tokenId].totalKYCTokens);
-        for (uint256 i = 0; i<profileTokens[tokenId].totalKYCTokens; i = i.add(1)){
-            _kycTokens[i] = profileTokens[tokenId].kycTokenIdList[i];
-        }
-    }
 
     /**
       * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner

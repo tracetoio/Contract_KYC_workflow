@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
-import "./lib/Whitelist.sol";
-import "./lib/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./lib/Token.sol";
-    
+import "./lib/Whitelist.sol";
+
 /**
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for service providers.
