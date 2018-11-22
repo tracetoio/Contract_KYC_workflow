@@ -61,11 +61,17 @@ contract TraceToProfileToken is Ownable{
         _;
     }
 
+    /**
+      * @dev Only the requestor PR in the requestor list contract.
+      */
     modifier onlyRequestor {
         require(tracetoRequestorList.isRequestorPR(msg.sender));
         _;
     }
 
+    /**
+      * @dev Only the SP in the sp list contract.
+      */
     modifier onlySP {
         require(tracetoSPList.isSP(msg.sender) || tracetoRMISPList.isSP(msg.sender));
         _;
@@ -76,7 +82,7 @@ contract TraceToProfileToken is Ownable{
     event RequestForRMI(uint256 profileTokenId);
 
     /** 
-      * @dev constructor of this contract, it will transfer ownership and use the verifier list set in meta info contract 
+      * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
       * @param owner Owner of this contract
       * @param _metaInfo meta info contract address
       */
@@ -91,6 +97,13 @@ contract TraceToProfileToken is Ownable{
         tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
+    /** 
+      * @dev assign a profile token to a user by a t3V, the token contrains profile hash and ipfs info.
+      *      The profile hash should not belong to others.
+      * @param _user Owner of this profile
+      * @param _profileHash the hash for user profile
+      * @param _ipfs the ipfs for user profile
+      */
     function assignProfileToken(address _user, string _profileHash, string _ipfs)
     public
     onlyVerifier {
@@ -109,12 +122,21 @@ contract TraceToProfileToken is Ownable{
         emit ProfileTokenAssigned(_user, _tokenCount, _profileHash, _ipfs);
     }
 
+    /** 
+      * @dev set expiry date for a profile token
+      * @param _tokenId the profile token id
+      * @param _expire the timestamp for expiry
+      */
     function setExpiry(uint256 _tokenId, uint256 _expire)
     public
     onlySP{
         profileTokens[_tokenId].expire = _expire;
     }
 
+    /** 
+      * @dev set a profile token as RMI required
+      * @param _tokenId the profile token id
+      */
     function assignProfileAsRMI(uint256 _tokenId)
     public
     onlyVerifier {
@@ -122,6 +144,12 @@ contract TraceToProfileToken is Ownable{
         emit RequestForRMI(_tokenId);
     }
 
+    /** 
+      * @dev assign a kyc token once KYC is done
+      * @param _tokenId the profile token id
+      * @param _encryptedKYCResults the encrypted KYC result
+      * @param _decay the decay timestamp for next checking
+      */
     function assignKYCToken(uint256 _tokenId, string _encryptedKYCResults, uint256 _decay)
     public
     onlyRequestor {
@@ -135,6 +163,11 @@ contract TraceToProfileToken is Ownable{
         emit KYCTokenAssigned(_tokenId, _tokenCount);
     }
 
+    /**  
+      * @dev get owner by profile token id
+      * @param _tokenId the profile token id
+      * @return owner the owner of the profile token
+      */
     function ownerOfProfileToken(uint256 tokenId)
     public
     view
@@ -142,6 +175,11 @@ contract TraceToProfileToken is Ownable{
         return profileTokens[tokenId].owner;
     }
 
+    /**  
+      * @dev get owner by kyc token id
+      * @param _tokenId the kyc token id
+      * @return owner the owner of the kyc token
+      */
     function ownerOfKYCToken(uint256 tokenId)
     public
     view
@@ -149,6 +187,13 @@ contract TraceToProfileToken is Ownable{
         return profileTokens[kycTokens[tokenId].owner].owner;
     }
 
+    /**  
+      * @dev get profile token details by profile token id
+      * @param _tokenId the profile token id
+      * @return _profileHash the hash for this profile
+      * @return _profileIPFS the ipfs link for this profile
+      * @return _expire the expire timestamp
+      */
     function getProfile(uint256 tokenId)
     public
     view
@@ -156,6 +201,11 @@ contract TraceToProfileToken is Ownable{
         return (profileTokens[tokenId].profileHash, profileTokens[tokenId].uriForProfileIPFS, profileTokens[tokenId].expire); 
     }
 
+    /**  
+      * @dev get profile token count by user wallet
+      * @param _user user wallet address
+      * @return _profileCount the count for this user's profile tokens
+      */
     function getUserProfileTokenCount(address _user)
     public
     view
@@ -163,6 +213,11 @@ contract TraceToProfileToken is Ownable{
         return UserProfileTokenList[_user].totalProfileTokens;
     }
 
+    /**  
+      * @dev get profile token list by user wallet
+      * @param _user user wallet address
+      * @return _profileTokens the list for this user's profile tokens
+      */
     function getUserProfileTokenList(address _user)
     public
     view
@@ -173,6 +228,11 @@ contract TraceToProfileToken is Ownable{
         }
     }
 
+    /**  
+      * @dev get profile id by user profile hash, will only return a valid reuslt when called by token owner
+      * @param _profileHash the hash for the profile hash
+      * @return _profileToken the profile token id
+      */
     function getUserProfileToken(string _profileHash)
     public
     view
@@ -181,6 +241,13 @@ contract TraceToProfileToken is Ownable{
         return profileId[_profileHash];
     }
 
+    /**  
+      * @dev get kyc token details by kyc token id
+      * @param _tokenId the kyc token id
+      * @return _requestor the wallet address for requestor
+      * @return _encryptedKYCResults the encrypted result
+      * @return _decay the decay timestamp
+      */
     function getKYC(uint256 tokenId)
     public
     view
@@ -188,20 +255,30 @@ contract TraceToProfileToken is Ownable{
         return (kycTokens[tokenId].requestor, kycTokens[tokenId].encryptedKYCResults, kycTokens[tokenId].decay);
     }
 
-    function getProfileKYCCount(uint256 tokenId)
+    /**  
+      * @dev get kyc token count by profile token id
+      * @param _tokenId profile token id
+      * @return _kycCount the count for this profile's kyc tokens
+      */
+    function getProfileKYCCount(uint256 _tokenId)
     public
     view
     returns (uint256 _kycCount){
-        return profileTokens[tokenId].totalKYCTokens;
+        return profileTokens[_tokenId].totalKYCTokens;
     }
 
-    function getProfileKYCs(uint256 tokenId)
+    /**  
+      * @dev get kyc token list by profile token id
+      * @param _tokenId profile token id
+      * @return _kycTokens the list for this profile's kyc tokens
+      */
+    function getProfileKYCs(uint256 _tokenId)
     public
     view
     returns (uint256[] _kycTokens){
-        _kycTokens = new uint256[](profileTokens[tokenId].totalKYCTokens);
-        for (uint256 i = 0; i<profileTokens[tokenId].totalKYCTokens; i = i.add(1)){
-            _kycTokens[i] = profileTokens[tokenId].kycTokenIdList[i];
+        _kycTokens = new uint256[](profileTokens[_tokenId].totalKYCTokens);
+        for (uint256 i = 0; i<profileTokens[_tokenId].totalKYCTokens; i = i.add(1)){
+            _kycTokens[i] = profileTokens[_tokenId].kycTokenIdList[i];
         }
     }
 
