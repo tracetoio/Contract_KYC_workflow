@@ -198,6 +198,34 @@ contract('TraceToProfileToken', function(accounts) {
         assert.equal(_profileData3[2], 0);
     })
 
+    it('should be not able to add the same profiles by t3V', async () => {
+        let profile = 'profileHash';
+        let ipfs1 = 'ProfileIPFSHash1';
+        let ipfs2 = 'ProfileIPFSHash2';
+        let ipfs3 = 'ProfileIPFSHash3';
+
+        let _profileCount = await tracetoProfileToken.getUserProfileTokenCount(user);
+        let _profileList = await tracetoProfileToken.getUserProfileTokenList(user);
+
+        assert.equal(_profileCount, 0);
+        assert.equal(_profileList.length, 0);
+
+        await tracetoProfileToken.assignProfileToken(user, profile, ipfs1, {from: t3V});
+        await utils.expectThrow(tracetoProfileToken.assignProfileToken(user, profile, ipfs2, {from: t3V}));
+        await utils.expectThrow(tracetoProfileToken.assignProfileToken(user, profile, ipfs3, {from: t3V}));
+
+        _profileCount = await tracetoProfileToken.getUserProfileTokenCount(user);
+        _profileList = await tracetoProfileToken.getUserProfileTokenList(user);
+
+        assert.equal(_profileCount, 1);
+        assert.equal(_profileList.length, 1);
+
+        let _profileData1 = await tracetoProfileToken.getProfile(_profileList[0]);
+        assert.equal(_profileData1[0], profile);
+        assert.equal(_profileData1[1], ipfs1);
+        assert.equal(_profileData1[2], 0);
+    })
+
     it('should be not able to add profiles by not t3V', async () => {
         let profile1 = 'profileHash1';
         let profile2 = 'profileHash2';
