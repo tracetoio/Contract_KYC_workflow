@@ -21,8 +21,8 @@ contract TraceToUnlockProfile is Ownable{
     }
 
     struct RequestedProfile {
-        mapping(string => ProfileKey) RequestedProfiles;
-        mapping(string => string) reasons;
+        mapping(uint256 => ProfileKey) RequestedProfiles;
+        mapping(uint256 => string) reasons;
     }
 
     mapping(address => RequestedProfile) requests;
@@ -33,8 +33,8 @@ contract TraceToUnlockProfile is Ownable{
     TraceToRequestorList public tracetoRequestorList;
     TraceToVerifierList public tracetoVerifierList;
 
-    event ProfileRequested(string profile, string reason, address requestor);
-    event KeyShared(string profile, address requestor);
+    event ProfileRequested(uint256 profile, string reason, address requestor);
+    event KeyShared(uint256 profile, address requestor);
 
     /**
       * @dev Only the requestor in the requestor list contract.
@@ -65,10 +65,10 @@ contract TraceToUnlockProfile is Ownable{
 
     /**  
       * @dev request to unlock a new profile
-      * @param _profileHash the profile hash 
+      * @param _profileHash the profile id 
       * @param _reason the reason for unlocking this profile
       */
-    function requestProfileKey(string _profileHash, string _reason)
+    function requestProfileKey(uint256 _profileHash, string _reason)
     public
     onlyRequestor{
         assert(!requests[msg.sender].RequestedProfiles[_profileHash].isInit);
@@ -81,11 +81,11 @@ contract TraceToUnlockProfile is Ownable{
 
     /**  
       * @dev share the encrypted key piece of one profile to one requestor, can be called by verifier only
-      * @param _profileHash the profile hash 
+      * @param _profileHash the profile id 
       * @param _keyPiece the encrypted key piece, the duplicate one will be rejected
       * @param _requestor the requestor who will get this piece
       */
-    function setKey(string _profileHash, string _keyPiece, address _requestor)
+    function setKey(uint256 _profileHash, string _keyPiece, address _requestor)
     public
     onlyVerifier{
         assert(!requests[_requestor].RequestedProfiles[_profileHash].keyPieceExists[keccak256(bytes(_keyPiece))]);
@@ -99,10 +99,10 @@ contract TraceToUnlockProfile is Ownable{
 
     /**  
       * @dev get the reason for one request
-      * @param _profileHash the profile hash 
+      * @param _profileHash the profile id 
       * @param _requestor the requestor who requested this profile
       */
-    function getReason(string _profileHash, address _requestor)
+    function getReason(uint256 _profileHash, address _requestor)
     public
     view
     returns (string reason){
@@ -111,11 +111,11 @@ contract TraceToUnlockProfile is Ownable{
 
     /**  
       * @dev once the key is shared, requestor can retrieve the key via this function
-      * @param _profileHash the profile hash 
+      * @param _profileHash the profile id 
       * @param _idx the idx of the key piece, will remove if solidity allow string[] returns later
       * @return keyPieces the requested key piece
       */
-    function getKey(string _profileHash, uint256 _idx)
+    function getKey(uint256 _profileHash, uint256 _idx)
     public
     onlyRequestor
     view
@@ -126,6 +126,16 @@ contract TraceToUnlockProfile is Ownable{
             && _idx < minCount);
 
         return requests[msg.sender].RequestedProfiles[_profileHash].keyPieces[_idx];
+    }
+
+    /**
+      * @dev sync whitelist contract with meata info contract
+      */
+    function syncWithMetaInfo()
+    public
+    onlyOwner{
+        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
+        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /**

@@ -5,7 +5,7 @@ let UnlockProfile = artifacts.require("./TraceToUnlockProfile.sol");
 
 let MetaInfo = artifacts.require("./TraceToMetaInfo.sol");
 
-let Profile = artifacts.require("./TraceToProfile.sol");
+let ProfileToken = artifacts.require("./TraceToProfileToken.sol");
 let ServiceCredit = artifacts.require("./TraceToServiceCredit.sol");
 let RMIServiceCredit = artifacts.require("./TraceToRMIServiceCredit.sol");
 
@@ -21,6 +21,8 @@ module.exports = function(deployer) {
             return _metaInfo.setSPPercentage(settings.spPercentage);
         }).then(() => {
             return _metaInfo.setVerifierPercentage(settings.verifierPercentage);
+        }).then(() => {
+            return _metaInfo.setInfoTemplate(settings.uriForProfileMetadataModel, settings.hashForProfileMetadataModel);
         }).then(() => {
             return deployer.deploy(SPList, settings.admin);
         }).then(() => {
@@ -42,7 +44,7 @@ module.exports = function(deployer) {
         }).then(() => {
             return _metaInfo.setUnlockProfile(UnlockProfile.address);
         }).then(() => {
-            return deployer.deploy(Profile, settings.admin, MetaInfo.address);
+            return deployer.deploy(ProfileToken, settings.admin, MetaInfo.address);
         }).then(() => {
             return deployer.deploy(ServiceCredit, settings.admin, MetaInfo.address);
         }).then(() => {
