@@ -58,16 +58,14 @@ contract('TraceToUnlockProfile', function(accounts) {
         await rqList.addPendingRequestorPR(rqPR, rqcountry, rqname, rqemail, uriForMoreDetails, hashForMoreDetails, {from: rq});
         await rqList.approveRequestorPR(rqPR, {from: admin});
 
-        let vname = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
 
-        await vList.addPendingVerifier(vname, urlForUploading, hashForUploading, stake, {from: v1});
-        await vList.addPendingVerifier(vname, urlForUploading, hashForUploading, stake, {from: v2});
-        await vList.addPendingVerifier(vname, urlForUploading, hashForUploading, stake, {from: v3});
-        await vList.addPendingVerifier(vname, urlForUploading, hashForUploading, stake, {from: v4});
-        await vList.addPendingVerifier(vname, urlForUploading, hashForUploading, stake, {from: v5});
+        await vList.addPendingVerifier(urlForUploading, hashForUploading, {from: v1});
+        await vList.addPendingVerifier(urlForUploading, hashForUploading, {from: v2});
+        await vList.addPendingVerifier(urlForUploading, hashForUploading, {from: v3});
+        await vList.addPendingVerifier(urlForUploading, hashForUploading, {from: v4});
+        await vList.addPendingVerifier(urlForUploading, hashForUploading, {from: v5});
         await vList.approveVerifier(v1, 1, {from: admin});
         await vList.approveVerifier(v2, 1, {from: admin});
         await vList.approveVerifier(v3, 1, {from: admin});
@@ -81,7 +79,7 @@ contract('TraceToUnlockProfile', function(accounts) {
         assert.equal(await tracetoUnlockProfile.owner(), admin);
     })
     it('should be able to request key by rqPR', async () => {
-    	let profile = "test profile";
+    	let profile = 7;
     	let reason = "test reason";
         await tracetoUnlockProfile.requestProfileKey(profile, reason, {from: rqPR});
 
@@ -89,7 +87,7 @@ contract('TraceToUnlockProfile', function(accounts) {
         assert.equal(_reason, reason);
     })
     it('should be not able to request key by not rqPR', async () => {
-    	let profile = "test profile";
+    	let profile = 7;
     	let reason = "test reason";
         await utils.expectThrow(tracetoUnlockProfile.requestProfileKey(profile, reason, {from: rq}));
 
@@ -97,7 +95,7 @@ contract('TraceToUnlockProfile', function(accounts) {
         assert.equal(_reason, "");
     })
     it('should be able to get keys if shared', async () => {
-    	let profile = "test profile";
+    	let profile = 7;
     	let reason = "test reason";
         await tracetoUnlockProfile.requestProfileKey(profile, reason, {from: rqPR});
 
@@ -124,7 +122,7 @@ contract('TraceToUnlockProfile', function(accounts) {
         assert.equal(await tracetoUnlockProfile.getKey.call(profile, 0, {from: rqPR}), key0);
     })
     it('should be not able to get key if there is not enough keys', async () => {
-    	let profile = "test profile";
+    	let profile = 7;
     	let reason = "test reason";
         await tracetoUnlockProfile.requestProfileKey(profile, reason, {from: rqPR});
 
@@ -133,7 +131,7 @@ contract('TraceToUnlockProfile', function(accounts) {
         await utils.expectThrow(tracetoUnlockProfile.getKey.call(profile, 0, {from: rqPR}));
     })
     it('should be able to remove duplicate keys', async () => {
-    	let profile = "test profile";
+    	let profile = 7;
     	let reason = "test reason";
         await tracetoUnlockProfile.requestProfileKey(profile, reason, {from: rqPR});
 

@@ -93,7 +93,7 @@ contract TraceToProfileToken is Ownable{
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
         tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
         tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
+        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
         tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
@@ -168,11 +168,11 @@ contract TraceToProfileToken is Ownable{
       * @param _tokenId the profile token id
       * @return owner the owner of the profile token
       */
-    function ownerOfProfileToken(uint256 tokenId)
+    function ownerOfProfileToken(uint256 _tokenId)
     public
     view
     returns (address owner){
-        return profileTokens[tokenId].owner;
+        return profileTokens[_tokenId].owner;
     }
 
     /**  
@@ -180,11 +180,11 @@ contract TraceToProfileToken is Ownable{
       * @param _tokenId the kyc token id
       * @return owner the owner of the kyc token
       */
-    function ownerOfKYCToken(uint256 tokenId)
+    function ownerOfKYCToken(uint256 _tokenId)
     public
     view
     returns (address owner){
-        return profileTokens[kycTokens[tokenId].owner].owner;
+        return profileTokens[kycTokens[_tokenId].owner].owner;
     }
 
     /**  
@@ -194,11 +194,11 @@ contract TraceToProfileToken is Ownable{
       * @return _profileIPFS the ipfs link for this profile
       * @return _expire the expire timestamp
       */
-    function getProfile(uint256 tokenId)
+    function getProfile(uint256 _tokenId)
     public
     view
     returns (string _profileHash, string _profileIPFS, uint256 _expire){
-        return (profileTokens[tokenId].profileHash, profileTokens[tokenId].uriForProfileIPFS, profileTokens[tokenId].expire); 
+        return (profileTokens[_tokenId].profileHash, profileTokens[_tokenId].uriForProfileIPFS, profileTokens[_tokenId].expire); 
     }
 
     /**  
@@ -248,11 +248,11 @@ contract TraceToProfileToken is Ownable{
       * @return _encryptedKYCResults the encrypted result
       * @return _decay the decay timestamp
       */
-    function getKYC(uint256 tokenId)
+    function getKYC(uint256 _tokenId)
     public
     view
     returns (address _requestor, string _encryptedKYCResults, uint256 _decay){
-        return (kycTokens[tokenId].requestor, kycTokens[tokenId].encryptedKYCResults, kycTokens[tokenId].decay);
+        return (kycTokens[_tokenId].requestor, kycTokens[_tokenId].encryptedKYCResults, kycTokens[_tokenId].decay);
     }
 
     /**  
@@ -290,7 +290,7 @@ contract TraceToProfileToken is Ownable{
     onlyOwner{
         tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
         tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
+        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
         tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
