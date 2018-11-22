@@ -336,6 +336,17 @@ contract TraceToProfileResult is Ownable{
     }
 
     /**
+      * @dev sync whitelist contract with meata info contract
+      */
+    function syncWithMetaInfo()
+    public
+    onlyOwner{
+        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
+        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
+        tracetoUnlockProfile = TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile());
+    }
+
+    /**
       * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
       * @param _token the token contract address
       * @param amount the amount going to be transfer
