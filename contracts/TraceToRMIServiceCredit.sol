@@ -36,7 +36,7 @@ contract TraceToRMIServiceCredit is Ownable{
         mapping(address => Payment) pending;
     }
 
-    mapping(string => RequestorPayment) PendingPayment; 
+    mapping(uint256 => RequestorPayment) PendingPayment; 
 
     TraceToMetaInfo public tracetoMetaInfo;
 
@@ -61,8 +61,8 @@ contract TraceToRMIServiceCredit is Ownable{
     }
 
     event Topup(address requestor, address sp, uint256 count);
-    event Pending(address requestor, address sp, string profile);
-    event Finished(address requestor, address sp, string profile);
+    event Pending(address requestor, address sp, uint256 profile);
+    event Finished(address requestor, address sp, uint256 profile);
 
     /** 
       * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
@@ -122,9 +122,9 @@ contract TraceToRMIServiceCredit is Ownable{
 
     /**
       * @dev set the profile as pending, deduct the balance
-      * @param _profile the profile hash
+      * @param _profile the profile id
       */
-    function addPending(string _profile)
+    function addPending(uint256 _profile)
     public
     onlyRequestor {
         for(uint256 idx = 0; idx < ServiceCredit[msg.sender].spCount; idx = idx.add(1)){
@@ -142,16 +142,28 @@ contract TraceToRMIServiceCredit is Ownable{
 
     /**
       * @dev set the profile as finished for checking, transfer token to sp and verifiers
-      * @param _profile the profile hash
+      * @param _profile the profile id
       * @param _sp the sp who provide the result
       */
-    function setFinished(string _profile, address _sp)
+    function setFinished(uint256 _profile, address _sp)
     public
     onlyRequestor {
         assert( token.approve(_sp, PendingPayment[_profile].pending[msg.sender].tokenCount[_sp].mul(tracetoMetaInfo.getSPPercentage()).div(100)));
         assert( token.approve(tracetoMetaInfo.getVerifierWL(), PendingPayment[_profile].pending[msg.sender].tokenCount[_sp].mul(tracetoMetaInfo.getVerifierPercentage()).div(100)));
         PendingPayment[_profile].pending[msg.sender].tokenCount[_sp] = 0;
         emit Finished(msg.sender, _sp, _profile);
+    }
+
+    /**
+      * @dev sync whitelist contract with meata info contract
+      */
+    function syncWithMetaInfo()
+    public
+    onlyOwner{
+        token = Token(tracetoMetaInfo.token());
+
+        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
+        tracetoSPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
     }
 
     /**

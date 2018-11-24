@@ -22,6 +22,8 @@ contract TraceToMetaInfo is Ownable{
     uint256 public SPPercentage;
     uint256 public VerifierPercentage;
 
+    uint256 public minimalStakeAmount;
+
     string public uriForInfoTemplate;
     string public hashForInfoTemplate;
 
@@ -109,6 +111,16 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
+      * @dev set amount for how much token verifiers need to deposit before joining
+      * @param _minimalStakeAmount the amount of usdt
+      */
+    function setMinimalStakeAmount(uint256 _minimalStakeAmount) 
+    public
+    onlyOwner {
+        minimalStakeAmount = _minimalStakeAmount;
+    }
+
+    /**  
       * @dev set the infomation template 
       * @param _uriForInfoTemplate the IPFS link for Info template
       * @param _hashForInfoTemplate the hash of the JSON object
@@ -174,7 +186,6 @@ contract TraceToMetaInfo is Ownable{
     returns (address _SPRMIWL) {
       return spRMIWL;
     }
-
     
     /**  
       * @dev get unlock profile contract
@@ -207,6 +218,17 @@ contract TraceToMetaInfo is Ownable{
     view
     returns (uint256 _VerifierPercentage) {
         return VerifierPercentage;
+    }
+
+    /**  
+      * @dev get amount for how much token verifiers need to deposit before joining
+      * @return _minimalStakeAmount the amount of usdt
+      */
+    function getMinimalStakeAmount() 
+    public
+    view
+    returns (uint256 _minimalStakeAmount)  {
+        return minimalStakeAmount;
     }
 
     /**  

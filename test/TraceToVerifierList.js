@@ -22,12 +22,10 @@ contract('TraceToVerifierList', function(accounts) {
 
         let v = accounts[1];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v});
 
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
@@ -37,16 +35,12 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_isVerifier, false);
 
         assert.equal(_pendingVMeta[0], 100);
-        assert.equal(_pendingVMeta[1], name);
-        assert.equal(_pendingVMeta[2], urlForUploading);
-        assert.equal(_pendingVMeta[3], hashForUploading);
-        assert.equal(_pendingVMeta[4], stake);
+        assert.equal(_pendingVMeta[1], urlForUploading);
+        assert.equal(_pendingVMeta[2], hashForUploading);
 
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-        assert.equal(_vMeta[3], "");
-        assert.equal(_vMeta[4], emptyAddr);
 
         assert.equal(_vList.length, 0);
     })
@@ -56,12 +50,10 @@ contract('TraceToVerifierList', function(accounts) {
 
         let v = accounts[1];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v});
         await tracetoVerifierList.approveVerifier(v, 2, {from: admin});
 
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
@@ -74,14 +66,10 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_pendingVMeta[0], 0);
         assert.equal(_pendingVMeta[1], "");
         assert.equal(_pendingVMeta[2], "");
-        assert.equal(_pendingVMeta[3], "");
-        assert.equal(_pendingVMeta[4], emptyAddr);
 
         assert.equal(_vMeta[0], 100);
-        assert.equal(_vMeta[1], name);
-        assert.equal(_vMeta[2], urlForUploading);
-        assert.equal(_vMeta[3], hashForUploading);
-        assert.equal(_vMeta[4], stake);
+        assert.equal(_vMeta[1], urlForUploading);
+        assert.equal(_vMeta[2], hashForUploading);
 
         assert.equal(_vList.length, 1);
     })
@@ -91,12 +79,10 @@ contract('TraceToVerifierList', function(accounts) {
 
         let v = accounts[1];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v});
         await utils.expectThrow(tracetoVerifierList.approveVerifier(v, 2, {from: v}));
 
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
@@ -107,16 +93,12 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_isVerifier, false);
 
         assert.equal(_pendingVMeta[0], 100);
-        assert.equal(_pendingVMeta[1], name);
-        assert.equal(_pendingVMeta[2], urlForUploading);
-        assert.equal(_pendingVMeta[3], hashForUploading);
-        assert.equal(_pendingVMeta[4], stake);
+        assert.equal(_pendingVMeta[1], urlForUploading);
+        assert.equal(_pendingVMeta[2], hashForUploading);
 
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-        assert.equal(_vMeta[3], "");
-        assert.equal(_vMeta[4], emptyAddr);
 
         assert.equal(_vList.length, 0);
     })
@@ -126,12 +108,10 @@ contract('TraceToVerifierList', function(accounts) {
 
         let v = accounts[1];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v});
         await tracetoVerifierList.approveVerifier(v, 2, {from: admin});
         await tracetoVerifierList.removeVerifier(v, {from: admin});
 
@@ -145,14 +125,10 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_pendingVMeta[0], 0);
         assert.equal(_pendingVMeta[1], "");
         assert.equal(_pendingVMeta[2], "");
-        assert.equal(_pendingVMeta[3], "");
-        assert.equal(_pendingVMeta[4], emptyAddr);
 
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-        assert.equal(_vMeta[3], "");
-        assert.equal(_vMeta[4], emptyAddr);
 
         assert.equal(_vList.length, 0);
     })
@@ -162,12 +138,10 @@ contract('TraceToVerifierList', function(accounts) {
 
         let v = accounts[1];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v});
         await tracetoVerifierList.approveVerifier(v, 2, {from: admin});
         await utils.expectThrow(tracetoVerifierList.removeVerifier(v, {from: v}));
 
@@ -181,14 +155,10 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_pendingVMeta[0], 0);
         assert.equal(_pendingVMeta[1], "");
         assert.equal(_pendingVMeta[2], "");
-        assert.equal(_pendingVMeta[3], "");
-        assert.equal(_pendingVMeta[4], emptyAddr);
 
         assert.equal(_vMeta[0], 100);
-        assert.equal(_vMeta[1], name);
-        assert.equal(_vMeta[2], urlForUploading);
-        assert.equal(_vMeta[3], hashForUploading);
-        assert.equal(_vMeta[4], stake);
+        assert.equal(_vMeta[1], urlForUploading);
+        assert.equal(_vMeta[2], hashForUploading);
 
         assert.equal(_vList.length, 1);
     })
@@ -201,15 +171,13 @@ contract('TraceToVerifierList', function(accounts) {
         let v3 = accounts[3];
         let v4 = accounts[4];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v1});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v2});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v3});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v4});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v1});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v2});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v3});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v4});
         await tracetoVerifierList.approveVerifier(v1, 2, {from: admin});
         await tracetoVerifierList.approveVerifier(v2, 2, {from: admin});
         await tracetoVerifierList.approveVerifier(v3, 2, {from: admin});
@@ -242,15 +210,13 @@ contract('TraceToVerifierList', function(accounts) {
         let v3 = accounts[3];
         let v4 = accounts[4];
 
-        let name = 'test V';
         let urlForUploading = 'QmZ57FxhFB7rb2JjKPPRqruNn4BNKMDtNfXaWx4D1mY5LX';
         let hashForUploading = '0x47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc000000000000000000000000';
-        let stake = accounts[5];
-
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v1});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v2});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v3});
-        await tracetoVerifierList.addPendingVerifier(name, urlForUploading, hashForUploading, stake, {from: v4});
+        
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v1});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v2});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v3});
+        await tracetoVerifierList.addPendingVerifier(urlForUploading, hashForUploading, {from: v4});
         await tracetoVerifierList.approveVerifier(v1, 1, {from: admin});
         await tracetoVerifierList.approveVerifier(v2, 2, {from: admin});
         await tracetoVerifierList.approveVerifier(v3, 3, {from: admin});

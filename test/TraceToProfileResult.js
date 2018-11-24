@@ -1,5 +1,7 @@
 var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 
+var TraceToProfileToken = artifacts.require("../contracts/TraceToProfileToken.sol");
+
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
@@ -15,7 +17,7 @@ var BigNumber = require('bignumber.js');
 contract('TraceToProfileResult', function(accounts) {
 	let t2tTokenContract;
     let metaInfo, rqList, spList, rmispList, vList;
-	let tracetoServiceCredit, tracetoRMIServiceCredit;
+	let tracetoServiceCredit, tracetoRMIServiceCredit, tracetoProfileToken;
 
     let tracetoProfileResult;
 
@@ -72,6 +74,8 @@ contract('TraceToProfileResult', function(accounts) {
         tracetoServiceCredit = await TraceToServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
         tracetoRMIServiceCredit = await TraceToRMIServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
 
+        tracetoProfileToken = await TraceToProfileToken.new(admin, metaInfo.address, {from: accounts[9]});
+
         let rqcountry = 'Singapore';
         let rqname = 'test RQ';
         let rqemail = 're@traceto.io';
@@ -79,7 +83,7 @@ contract('TraceToProfileResult', function(accounts) {
         let hashForMoreDetails = '47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc';
         let pubKey = 'RQ_PUBKEY';
 
-        tracetoProfileResult = await TraceToProfileResult.new(rq, metaInfo.address, tracetoServiceCredit.address, tracetoRMIServiceCredit.address, pubKey, {from: accounts[9]});
+        tracetoProfileResult = await TraceToProfileResult.new(rq, tracetoProfileToken.address, metaInfo.address, tracetoServiceCredit.address, tracetoRMIServiceCredit.address, pubKey, {from: accounts[9]});
 
         await rqList.addPendingRequestorPR(tracetoProfileResult.address, rqcountry, rqname, rqemail, uriForMoreDetails, hashForMoreDetails, {from: rq});
         await rqList.approveRequestorPR(tracetoProfileResult.address, {from: admin});
@@ -109,7 +113,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
 
     it('should be able to set pending', async () => {
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test consent";
         await tracetoProfileResult.addPending(profile, consent, {from: rq});
         let balance = await tracetoProfileResult.getServiceBalance.call(sp, {from: rq});
@@ -123,7 +127,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set result by sp', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -165,7 +169,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result by not sp', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -206,7 +210,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result with invalid time', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -253,7 +257,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set finished by rq', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -276,7 +280,7 @@ contract('TraceToProfileResult', function(accounts) {
 
     it('should be not able to set finished by not rq', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 

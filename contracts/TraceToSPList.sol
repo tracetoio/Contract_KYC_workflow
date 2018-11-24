@@ -9,11 +9,6 @@ import "./lib/Token.sol";
  */
 contract TraceToSPList is Ownable, Whitelist{
     using SafeMath for uint256;
-
-    /** 
-      * @dev This is the different levels of information that a SP requires
-      */
-    enum InfoLv {Basic, Images, Complete}
     
     struct meta {
         uint256 ratePerService;
@@ -22,7 +17,7 @@ contract TraceToSPList is Ownable, Whitelist{
         string email;
         string uriForRubrics;
         string hashFroRubrics;
-        InfoLv lv;
+        uint256 lv;
         uint256 idx;
     }
 
@@ -58,7 +53,7 @@ contract TraceToSPList is Ownable, Whitelist{
       * @param _hashFroRubrics hash for the JSON object data
       * @param _lv level of infomation they are checking
       */
-    function addPendingSP(uint256 _rate, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, InfoLv _lv)
+    function addPendingSP(uint256 _rate, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv)
     public {
         pendingMetaInfo[msg.sender] = meta(_rate, 100, _companyName, _email, _uriForRubrics, _hashFroRubrics, _lv, 0);
 
@@ -170,7 +165,7 @@ contract TraceToSPList is Ownable, Whitelist{
     function getPendingSPDetail(address _sp)
     public
     view
-    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, InfoLv _lv){
+    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
         return (pendingMetaInfo[_sp].ratePerService, pendingMetaInfo[_sp].reputation, pendingMetaInfo[_sp].companyName, pendingMetaInfo[_sp].email, pendingMetaInfo[_sp].uriForRubrics, pendingMetaInfo[_sp].hashFroRubrics, pendingMetaInfo[_sp].lv);
     }
 
@@ -185,7 +180,7 @@ contract TraceToSPList is Ownable, Whitelist{
     function getSPDetail(address _sp)
     public
     view
-    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, InfoLv _lv){
+    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
         return (metaInfo[_sp].ratePerService, metaInfo[_sp].reputation, metaInfo[_sp].companyName, metaInfo[_sp].email, metaInfo[_sp].uriForRubrics, metaInfo[_sp].hashFroRubrics, metaInfo[_sp].lv);
     }
 

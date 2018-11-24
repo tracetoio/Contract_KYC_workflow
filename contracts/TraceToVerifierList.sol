@@ -11,10 +11,8 @@ contract TraceToVerifierList is Ownable, Whitelist {
     using SafeMath for uint256;
     struct meta {
         uint256 reputation;
-        string name;
         string urlForUploading;
         string hashForUploading;
-        address stake;
         uint256 tier;
         uint256 idx;
     }
@@ -49,14 +47,12 @@ contract TraceToVerifierList is Ownable, Whitelist {
 
     /**  
       * @dev add the current wallet as a pending verifier
-      * @param _name name for this verifier
       * @param _urlForUploading the url for end user to upload their profiles
       * @param _hashForUploading the hash for the url
-      * @param _stake the wallet to keep t2t tokens, will use this in next phase
       */
-    function addPendingVerifier(string _name, string _urlForUploading, string _hashForUploading, address _stake)
+    function addPendingVerifier(string _urlForUploading, string _hashForUploading)
     public {
-        pendingMetaInfo[msg.sender] = meta(100, _name, _urlForUploading, _hashForUploading, _stake, 0, 0);
+        pendingMetaInfo[msg.sender] = meta(100, _urlForUploading, _hashForUploading, 0, 0);
 
         emit NewPendingVerifier(msg.sender);
     }
@@ -258,32 +254,28 @@ contract TraceToVerifierList is Ownable, Whitelist {
       * @dev check get details of a pending verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getPendingVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].name, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading, pendingMetaInfo[_verifier].stake);
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading);
     }
 
     /**
       * @dev check get details of a verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (metaInfo[_verifier].reputation, metaInfo[_verifier].name, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading, metaInfo[_verifier].stake);
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (metaInfo[_verifier].reputation, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading);
     }
 
     /**
