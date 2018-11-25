@@ -85,8 +85,7 @@ contract TraceToProfileResult is Ownable{
       */
     function addPending(uint256 _profile, string _consent)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         profileInfo[_profile].consent = _consent;
 
         emit ProfileConsent(_profile, _consent);
@@ -99,8 +98,7 @@ contract TraceToProfileResult is Ownable{
       */
     function addRMIPending(uint256 _profile)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         emit ProfileRMI(_profile);
         tracetoRMIServiceCredit.addPending(_profile);
     }
@@ -112,8 +110,7 @@ contract TraceToProfileResult is Ownable{
      */
     function requestProfileKey(uint256 _profile, string _reason)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile()).requestProfileKey(_profile, _reason);
     }
 
@@ -125,8 +122,7 @@ contract TraceToProfileResult is Ownable{
       */
     function assignKYCToken(uint256 _profile, string _encryptedKYCResults, uint256 _decay)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoProfileToken.assignKYCToken(_profile, _encryptedKYCResults, _decay);
     }
 
@@ -137,8 +133,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setFinished(uint256 _profile, address _sp)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoServiceCredit.setFinished(_profile, _sp);
     }
 
@@ -149,8 +144,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setRMIFinished(uint256 _profile, address _sp)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoRMIServiceCredit.setFinished(_profile, _sp);
     }
 
@@ -163,8 +157,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setResult(uint256 _profile, string _result, uint256 _decay, uint256 _expire)
     public
-    onlySP
-    payable {
+    onlySP {
         require(_decay < 10413763200 && _expire < 10413763200);
         if(profileInfo[_profile].expire == 0 || profileInfo[_profile].expire > _expire){
             profileInfo[_profile].expire = _expire;
@@ -185,8 +178,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setRMIResult(uint256 _profile, string _result, uint256 _decay, uint256 _expire)
     public
-    onlyRMISP
-    payable {
+    onlyRMISP {
     require(_decay < 10413763200 && _expire < 10413763200);
         if(profileInfo[_profile].expire == 0 || profileInfo[_profile].expire > _expire){
             profileInfo[_profile].expire = _expire;
@@ -206,7 +198,6 @@ contract TraceToProfileResult is Ownable{
       */
     function getServiceBalance(address _sp)
     public
-    onlyOwner
     view
     returns(uint256 tokenCount, uint256 serviceCount){
         return tracetoServiceCredit.getBalance(_sp);
@@ -311,8 +302,7 @@ contract TraceToProfileResult is Ownable{
       */
     function emitRENEW(uint256 _profile)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         emit RENEW(_profile);
     }
 
@@ -322,8 +312,7 @@ contract TraceToProfileResult is Ownable{
       */
     function emitRMI(uint256 _profile)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         emit RMI(_profile);
     }
 
@@ -336,6 +325,6 @@ contract TraceToProfileResult is Ownable{
     public
     onlyOwner {
         address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

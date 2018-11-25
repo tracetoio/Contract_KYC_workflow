@@ -6,7 +6,7 @@ import "./lib/Token.sol";
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for requesters.
  */
-contract TraceToRequestorList is Ownable, Whitelist {
+contract TraceToRequestorList is Whitelist {
     struct meta {
         string country;
         string name;
@@ -128,6 +128,6 @@ contract TraceToRequestorList is Ownable, Whitelist {
     public
     onlyOwner{
         address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

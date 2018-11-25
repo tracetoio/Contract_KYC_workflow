@@ -76,10 +76,9 @@ contract TraceToServiceCredit is Ownable{
       * @param _count the service count
       */
     function topup(address _requestor, address _sp, uint256 _count)
-    public
-    payable {
+    public {
     	require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp));
-    	assert(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
+    	require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -138,7 +137,7 @@ contract TraceToServiceCredit is Ownable{
     public
     onlyRequestor {
         if(token.allowance(address(this), _sp) == 0){
-            assert(
+            require(
                 token.approve(
                     _sp,
                     PendingPayment[_profile]
@@ -162,7 +161,7 @@ contract TraceToServiceCredit is Ownable{
 
         address _v = tracetoMetaInfo.getVerifierWL();
         if(token.allowance(address(this), _v) == 0){
-            assert(
+            require(
             token.approve(
                 tracetoMetaInfo.getVerifierWL(),
                 PendingPayment[_profile]
@@ -199,6 +198,6 @@ contract TraceToServiceCredit is Ownable{
     public
     onlyOwner  {
         address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

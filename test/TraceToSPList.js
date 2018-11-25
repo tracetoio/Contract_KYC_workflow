@@ -308,14 +308,14 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spList[2], sp3);
         assert.equal(_spList[3], sp4);
 
-        await tracetoSPList.removeSP(sp3, {from: admin});
+        await tracetoSPList.removeSP(sp2, {from: admin});
 
         _spList = await tracetoSPList.getSPList.call();
 
         assert.equal(_spList.length, 3);
         assert.equal(_spList[0], sp1);
-        assert.equal(_spList[1], sp2);
-        assert.equal(_spList[2], sp4);
+        assert.equal(_spList[1], sp4);
+        assert.equal(_spList[2], sp3);
     })
 
 });

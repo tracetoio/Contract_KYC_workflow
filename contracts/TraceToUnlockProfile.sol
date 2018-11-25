@@ -134,6 +134,6 @@ contract TraceToUnlockProfile is Ownable{
     public
     onlyOwner  {
         address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

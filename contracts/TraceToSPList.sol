@@ -7,7 +7,7 @@ import "./lib/Token.sol";
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for service providers.
  */
-contract TraceToSPList is Ownable, Whitelist{
+contract TraceToSPList is Whitelist{
     using SafeMath for uint256;
     
     struct meta {
@@ -80,13 +80,12 @@ contract TraceToSPList is Ownable, Whitelist{
     function removeSP(address _sp)
     public
     onlyOwner  {
-        if(metaInfo[_sp].idx < spList.length){
-            for (uint256 i = metaInfo[_sp].idx; i<spList.length-1; i = i.add(1)){
-                spList[i] = spList[i+1];
-            }
-            delete spList[spList.length-1];
-            spList.length = spList.length-1;
+        if(spList.length == 1){
+            delete spList[0];
+        }else{
+            spList[metaInfo[_sp].idx] = spList[spList.length-1];
         }
+        spList.length = spList.length-1;
         delete metaInfo[_sp];
 
         removeAddressFromWhitelist(_sp);
@@ -188,6 +187,6 @@ contract TraceToSPList is Ownable, Whitelist{
     public
     onlyOwner  {
         address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        require(_token.transfer( tracetoMultisig, amount ));
     }
 }
