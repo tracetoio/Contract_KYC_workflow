@@ -41,14 +41,12 @@ contract TraceToRMIServiceCredit is Ownable{
     TraceToMetaInfo public tracetoMetaInfo;
 
     Token public token;
-    TraceToRequestorList public tracetoRequestorList;
-    TraceToSPList public tracetoSPList;
 
     /**
       * @dev only requestor who have topped up before
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
         _;
     }
 
@@ -56,7 +54,7 @@ contract TraceToRMIServiceCredit is Ownable{
       * @dev only service providers
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -75,9 +73,6 @@ contract TraceToRMIServiceCredit is Ownable{
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
 
         token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
     }
 
     /**
@@ -89,8 +84,8 @@ contract TraceToRMIServiceCredit is Ownable{
     function topup(address _requestor, address _sp, uint256 _count)
     public
     payable {
-        require(tracetoRequestorList.isRequestorPR(_requestor) && tracetoSPList.isSP(_sp));
-        assert(token.transferFrom(msg.sender, address(this), _count.mul(tracetoSPList.getSPRate(_sp))));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(_sp));
+        assert(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -98,7 +93,7 @@ contract TraceToRMIServiceCredit is Ownable{
         }
 
         ServiceCredit[_requestor].credits[_sp].serviceCount = ServiceCredit[_requestor].credits[_sp].serviceCount.add(_count);
-        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(tracetoSPList.getSPRate(_sp)));
+        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPList(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp)));
 
         emit Topup(_requestor, _sp, _count);
     }
@@ -152,18 +147,6 @@ contract TraceToRMIServiceCredit is Ownable{
         assert( token.approve(tracetoMetaInfo.getVerifierWL(), PendingPayment[_profile].pending[msg.sender].tokenCount[_sp].mul(tracetoMetaInfo.getVerifierPercentage()).div(100)));
         PendingPayment[_profile].pending[msg.sender].tokenCount[_sp] = 0;
         emit Finished(msg.sender, _sp, _profile);
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
     }
 
     /**

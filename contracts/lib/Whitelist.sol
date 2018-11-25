@@ -16,9 +16,6 @@ contract Whitelist is Ownable {
 
     mapping (string => role) private roles;
 
-    event RoleAdded(address indexed operator, string role);
-    event RoleRemoved(address indexed operator, string role);
-
     /**
       * @dev Only the wallet in the whitelist.
       */
@@ -42,7 +39,6 @@ contract Whitelist is Ownable {
     public
     onlyOwner {
         roles[ROLE_WHITELISTED].bearer[_operator] = true;
-        emit RoleAdded(_operator, ROLE_WHITELISTED);
     }
 
     /** @dev check whether an address is in the whitelist
@@ -74,7 +70,6 @@ contract Whitelist is Ownable {
     public
     onlyOwner {
         roles[ROLE_WHITELISTED].bearer[_operator] = false;
-        emit RoleRemoved(_operator, ROLE_WHITELISTED);
     }
 
     /** @dev remove a list of address from whitelist

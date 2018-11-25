@@ -48,16 +48,12 @@ contract TraceToProfileToken is Ownable{
     uint256 kycTokenCount;
 
     TraceToMetaInfo public tracetoMetaInfo;
-    TraceToRequestorList public tracetoRequestorList;
-    TraceToSPList public tracetoSPList;
-    TraceToSPList public tracetoRMISPList;
-    TraceToVerifierList public tracetoVerifierList;
 
     /**
       * @dev Only the tier 3 verifier in the verifier list contract.
       */
     modifier onlyVerifier {
-        require(tracetoVerifierList.isVerifier(msg.sender, 3));
+        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 3));
         _;
     }
 
@@ -65,7 +61,7 @@ contract TraceToProfileToken is Ownable{
       * @dev Only the requestor PR in the requestor list contract.
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
@@ -73,7 +69,7 @@ contract TraceToProfileToken is Ownable{
       * @dev Only the SP in the sp list contract.
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender) || tracetoRMISPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender) || TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -91,10 +87,6 @@ contract TraceToProfileToken is Ownable{
         transferOwnership(owner);
 
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /** 
@@ -280,18 +272,6 @@ contract TraceToProfileToken is Ownable{
         for (uint256 i = 0; i<profileTokens[_tokenId].totalKYCTokens; i = i.add(1)){
             _kycTokens[i] = profileTokens[_tokenId].kycTokenIdList[i];
         }
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /**

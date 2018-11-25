@@ -30,7 +30,6 @@ contract TraceToUnlockProfile is Ownable{
     uint256 minCount = 10;
 
     TraceToMetaInfo public tracetoMetaInfo;
-    TraceToRequestorList public tracetoRequestorList;
     TraceToVerifierList public tracetoVerifierList;
 
     event ProfileRequested(uint256 profile, string reason, address requestor);
@@ -40,12 +39,12 @@ contract TraceToUnlockProfile is Ownable{
       * @dev Only the requestor in the requestor list contract.
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
     modifier onlyVerifier {
-        require(tracetoVerifierList.isVerifier(msg.sender, 1));
+        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 1));
         _;
     }
 
@@ -59,8 +58,6 @@ contract TraceToUnlockProfile is Ownable{
         transferOwnership(owner);
 
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /**  
@@ -126,16 +123,6 @@ contract TraceToUnlockProfile is Ownable{
             && _idx < minCount);
 
         return requests[msg.sender].RequestedProfiles[_profileHash].keyPieces[_idx];
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /**

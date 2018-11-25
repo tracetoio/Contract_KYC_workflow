@@ -27,10 +27,6 @@ contract TraceToProfileResult is Ownable{
     TraceToMetaInfo public tracetoMetaInfo;
     TraceToServiceCredit public tracetoServiceCredit;
     TraceToRMIServiceCredit public tracetoRMIServiceCredit;
-    TraceToSPList public tracetoSPList;
-    TraceToSPList public tracetoRMISPList;
-
-    TraceToUnlockProfile public tracetoUnlockProfile;
 
     struct Info {
         mapping(address => Result) results;
@@ -53,12 +49,12 @@ contract TraceToProfileResult is Ownable{
       * @dev only service providers
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
         _;
     }
 
     modifier onlyRMISP {
-        require(tracetoRMISPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -78,10 +74,6 @@ contract TraceToProfileResult is Ownable{
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
         tracetoServiceCredit = TraceToServiceCredit(_serviceCredit);
         tracetoRMIServiceCredit = TraceToRMIServiceCredit(_RMIServiceCredit);
-
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoUnlockProfile = TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile());
 
         pubKey = _pubKey;
     }
@@ -122,7 +114,7 @@ contract TraceToProfileResult is Ownable{
     public
     onlyOwner
     payable {
-        tracetoUnlockProfile.requestProfileKey(_profile, _reason);
+        TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile()).requestProfileKey(_profile, _reason);
     }
 
     /** 
@@ -244,7 +236,7 @@ contract TraceToProfileResult is Ownable{
     public
     view
     returns(string keyPieces){
-        return tracetoUnlockProfile.getKey(_profileHash, _idx);
+        return TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile()).getKey(_profileHash, _idx);
     }
     
     /** 
@@ -333,17 +325,6 @@ contract TraceToProfileResult is Ownable{
     onlyOwner
     payable {
         emit RMI(_profile);
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoUnlockProfile = TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile());
     }
 
     /**

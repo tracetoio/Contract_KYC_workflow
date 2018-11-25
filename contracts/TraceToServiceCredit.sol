@@ -41,14 +41,12 @@ contract TraceToServiceCredit is Ownable{
     TraceToMetaInfo public tracetoMetaInfo;
 
     Token public token;
-    TraceToRequestorList public tracetoRequestorList;
-    TraceToSPList public tracetoSPList;
 
     /**
       * @dev only requestor who have topped up before
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
         _;
     }
 
@@ -56,7 +54,7 @@ contract TraceToServiceCredit is Ownable{
       * @dev only service providers
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
         _;
     }
 
@@ -75,9 +73,6 @@ contract TraceToServiceCredit is Ownable{
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
 
         token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
     }
 
     /**
@@ -89,8 +84,8 @@ contract TraceToServiceCredit is Ownable{
     function topup(address _requestor, address _sp, uint256 _count)
     public
     payable {
-    	require(tracetoRequestorList.isRequestorPR(_requestor) && tracetoSPList.isSP(_sp));
-    	assert(token.transferFrom(msg.sender, address(this), _count.mul(tracetoSPList.getSPRate(_sp))));
+    	require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp));
+    	assert(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -98,7 +93,7 @@ contract TraceToServiceCredit is Ownable{
         }
 
         ServiceCredit[_requestor].credits[_sp].serviceCount = ServiceCredit[_requestor].credits[_sp].serviceCount.add(_count);
-        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(tracetoSPList.getSPRate(_sp)));
+        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp)));
 
         emit Topup(_requestor, _sp, _count);
     }
@@ -174,18 +169,6 @@ contract TraceToServiceCredit is Ownable{
         emit Finished(msg.sender, _sp, _profile);
     }
 
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-    }
 
     /**
       * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
