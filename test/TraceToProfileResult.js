@@ -141,11 +141,11 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let expire1 = 150;
+        let decay1 = 1574695773;
+        let expire1 = 1574695773;
 
-        let decay2 = 100;
-        let expire2 = 100;
+        let decay2 = 1574695773;
+        let expire2 = 1574695773;
 
         
         await tracetoProfileResult.setResult(profile, profileResult, decay1, expire1, {from: sp});
@@ -183,11 +183,11 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let expire1 = 150;
+        let decay1 = 1574695773;
+        let expire1 = 1574695773;
 
-        let decay2 = 100;
-        let expire2 = 100;
+        let decay2 = 1574695773;
+        let expire2 = 1574695773;
 
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1, expire1, {from: admin}));
 
@@ -224,15 +224,15 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let decay1Invalid = 10500000000;
-        let expire1 = 150;
-        let expire1Invalid = 10500000000;
+        let decay1Invalid = 100;
+        let decay1 = 10500000000;
+        let expire1Invalid = 150;
+        let expire1 = 10500000000;
 
-        let decay2 = 100;
-        let decay2Invalid = 10500000000;
-        let expire2 = 100;
-        let expire2Invalid = 10500000000;
+        let decay2Invalid = 100;
+        let decay2 = 10500000000;
+        let expire2Invalid = 100;
+        let expire2 = 10500000000;
 
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1Invalid, expire1, {from: sp}));
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1, expire1Invalid, {from: sp}));

@@ -9,7 +9,7 @@ import "./TraceToSPList.sol";
 
 /**
  * @title TraceToRMIServiceCredit
- * @dev This contract is for keeping the RMI service balance, and notify SP to check RMI profiles.
+ * @dev This contract is for keeping the RMI service balance, and notify SP to check RMI profiles
  */
 contract TraceToRMIServiceCredit is Ownable{
     using SafeMath for uint256;

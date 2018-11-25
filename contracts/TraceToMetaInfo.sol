@@ -5,7 +5,8 @@ import "./lib/Token.sol";
 
 /**
  * @title TraceToMetaInfo
- * @dev This contract is for sharing meta data for other traceto contracts.
+ * @dev This contract is for sharing meta data for other traceto contracts
+ * It additionally allows us to update the smart contracts and provides a migration path
  */
 contract TraceToMetaInfo is Ownable{
     using SafeMath for uint256;
@@ -90,6 +91,8 @@ contract TraceToMetaInfo is Ownable{
 
     /**  
       * @dev set proportion for how much token will transfer to service provider
+      * @notice this is part of the tokenomics and its the proportion per service the amounts that
+      * will be taken by the Service Provider
       * @param _SPPercentage the percentage of costs for service provider
       */
     function setSPPercentage(uint256 _SPPercentage)
@@ -101,6 +104,8 @@ contract TraceToMetaInfo is Ownable{
 
     /**  
       * @dev set proportion for how much token will transfer to verifier
+      * @notice this is the percentage that will be taken by the verifier's. The remaining is
+      * what will be utilized by the contract owner for updating the system in the future.
       * @param _VerifierPercentage the percentage for verifier
       */
     function setVerifierPercentage(uint256 _VerifierPercentage)
@@ -112,7 +117,7 @@ contract TraceToMetaInfo is Ownable{
 
     /**  
       * @dev set amount for how much token verifiers need to deposit before joining
-      * @param _minimalStakeAmount the amount of usdt
+      * @param _minimalStakeAmount the amount of USDT
       */
     function setMinimalStakeAmount(uint256 _minimalStakeAmount) 
     public
@@ -121,7 +126,8 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
-      * @dev set the infomation template 
+      * @dev set the infomation template, example gist at 
+      * https://gist.github.com/tracetoio-dias/f651ff0a3de0970cc87e09d8058071db
       * @param _uriForInfoTemplate the IPFS link for Info template
       * @param _hashForInfoTemplate the hash of the JSON object
       */
@@ -133,7 +139,7 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
-      * @dev get t2t token contract
+      * @dev get T2T token contract
       * @return _t2tContract the address of t2t token contract
       */
     function getTokenContract()

@@ -4,7 +4,7 @@ import "./lib/Token.sol";
 
 /**
  * @title TraceToSPList
- * @dev This contract is the whitelist contract for requesters.
+ * @dev This contract is the whitelist contract for requestors.
  */
 contract TraceToRequestorList is Ownable, Whitelist {
     struct meta {
@@ -37,11 +37,13 @@ contract TraceToRequestorList is Ownable, Whitelist {
 
     /**  
       * @dev add a wallet as a pending requestor (PR contract)
+      * @notice Information here is publicly available and is maintained for transparency
       * @param _requestorPR the PR contract deployed by this requestor (PR contract)
       * @param _country the country for this requestor (PR contract)
       * @param _name the name for this requestor (PR contract)
       * @param _email the email for this requestor (PR contract)
-      * @param _uriForMoreDetails the IPFS link for this requestor (PR contract) to put more infomation
+      * @param _uriForMoreDetails the IPFS link for this requestor (PR contract) 
+               to put more infomation regarding the Requestor.
       * @param _hashForMoreDetails the hash of the JSON object in IPFS
       */
     function addPendingRequestorPR(address _requestorPR, string _country, string _name, string _email, string _uriForMoreDetails, string _hashForMoreDetails)

@@ -11,7 +11,15 @@ import "./TraceToUnlockProfile.sol";
 
 /**
  * @title TraceToProfileResult
- * @dev This contract is for requestor to recevice checking result.
+ * @dev This contract is for requestor to receive checking result
+ * It is deployed by the requestor. The requestor adds the profile that
+ * needs to be KYCed in addPending and then the service provider's
+ * return the result by writing to the setResult function with the
+ * uri location of the result which is encrypted with requestor's keys
+ * It additionally, will be only valid till its respective decay period
+ * We also have two types of service provider's one that requires a specific set of info
+ * and another the RMI(Request for more information) type of service providers,
+ * that can ask additional info from users
  */
 contract TraceToProfileResult is Ownable{ 
     using SafeMath for uint256;
@@ -71,7 +79,12 @@ contract TraceToProfileResult is Ownable{
       * @param _RMIServiceCredit the address of rmi service credit contract
       * @param _pubKey pubKey for SP to encrypt the result 
       */
-    constructor( address owner, address _profileToken, address _metaInfo, address _serviceCredit, address _RMIServiceCredit, string _pubKey)
+    constructor( address owner,
+      address _profileToken,
+      address _metaInfo,
+      address _serviceCredit,
+      address _RMIServiceCredit,
+      string _pubKey)
     public {
         transferOwnership(owner);
         tracetoProfileToken = TraceToProfileToken(_profileToken);
@@ -114,7 +127,8 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-     * @dev Requestor can request the key for one profile
+     * @dev Requestor can request the key for one profile, this key will be used to unlock the
+     * full information of the user, if the verifier's give the key to the requestor's.
      * @param _profile the profile id
      * @param _reason the reason for unlocking this profile
      */
@@ -126,7 +140,9 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev Requestor can set a kyc token after finished
+      * @dev Requestor can set a kyc token after finished.
+      * @notice A kyc token is an additional badge that is given by each requestor to a user
+      * on successfull completion of a KYC as per the rubrics/specifications of that requestor.
       * @param _profile the profile id
       * @param _encryptedKYCResults the kyc result
       * @param _decay the decay for this profile
@@ -139,7 +155,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev Requestor can set a profile as finished for checking
+      * @dev Requestor can set a profile as finished to denote flow complete for a profile.
       * @param _profile the profile id
       * @param _sp the sp who provided the result
       */
@@ -151,7 +167,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev Requestor can set a profile as finished for checking
+      * @dev Requestor can set a profile as finished to denote RMI flow complete for a profile
       * @param _profile the profile id
       * @param _sp the sp who provided the result
       */
@@ -163,7 +179,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev SP can set the result for one profile
+      * @dev SP can set the service result for one profile
       * @param _profile the profile id
       * @param _result the encrypted result for this profile
       * @param _decay the decay timestamp for this profile
@@ -173,7 +189,7 @@ contract TraceToProfileResult is Ownable{
     public
     onlySP
     payable {
-        require(_decay < 10413763200 && _expire < 10413763200);
+        require(_decay > now && _expire > now);
         if(profileInfo[_profile].expire == 0 || profileInfo[_profile].expire > _expire){
             profileInfo[_profile].expire = _expire;
         }
@@ -185,7 +201,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev RMI SP can set the result for one profile
+      * @dev RMI SP can set the service result for one profile
       * @param _profile the profile id
       * @param _result the encrypted result for this profile
       * @param _decay the decay timestamp for this profile
@@ -195,7 +211,7 @@ contract TraceToProfileResult is Ownable{
     public
     onlyRMISP
     payable {
-    require(_decay < 10413763200 && _expire < 10413763200);
+        require(_decay > now && _expire > now);
         if(profileInfo[_profile].expire == 0 || profileInfo[_profile].expire > _expire){
             profileInfo[_profile].expire = _expire;
         }
@@ -207,7 +223,9 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev get balance for one SP
+      * @dev get balance for one SP, 
+      * @notice here when the requestor topup's he gets a certain amount of services. 
+      * The token count is the amount paid for those services.
       * @param _sp the sp going to be checked
       * @return tokenCount the token deposit in the SC contract
       * @return serviceCount the service count balance
@@ -235,9 +253,9 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev get key for requested profile
+      * @dev get key for requested profile, this is used once the verifier's have provided keys.
       * @param _profileHash the profile id 
-      * @param _idx the idx of the key piece, will remove if solidity allow string[] returns later
+      * @param _idx the idx of the key piece
       * @return keyPieces the requested key piece
       */
     function getProfileKey(uint256 _profileHash, uint256 _idx)
@@ -287,7 +305,7 @@ contract TraceToProfileResult is Ownable{
       * @dev get profile result
       * @param _profile the profile id
       * @param _sp the service provider who generated the result
-      * @return results the encrypted result
+      * @return returns the encrypted result
       * @return decay the decay timestamp
       * @return expire the expire timestamp
       */
@@ -299,7 +317,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
-      * @dev get profile rmi result
+      * @dev get profile RMI result
       * @param _profile the profile id
       * @param _sp the service provider who generated the result
       * @return results the encrypted result
@@ -336,7 +354,7 @@ contract TraceToProfileResult is Ownable{
     }
 
     /**
-      * @dev sync whitelist contract with meata info contract
+      * @dev sync the whitelist contract's with meta info contract
       */
     function syncWithMetaInfo()
     public
