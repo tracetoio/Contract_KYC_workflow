@@ -24,8 +24,6 @@ contract TraceToSPList is Ownable, Whitelist{
     mapping(address => meta) pendingMetaInfo;
     mapping(address => meta) metaInfo;
 
-    uint256 spCount = 0;
-
     address[] spList;
 
     event NewPendingSP(address sp);
@@ -67,14 +65,12 @@ contract TraceToSPList is Ownable, Whitelist{
     function approveSP(address _sp)
     public
     onlyOwner  {
-        spCount = spCount.add(1);
-
+        spList.push(_sp);
         metaInfo[_sp] = pendingMetaInfo[_sp];
-        metaInfo[_sp].idx = spCount.sub(1);
+        metaInfo[_sp].idx = spList.length - 1;
 
         delete pendingMetaInfo[_sp];
         addAddressToWhitelist(_sp);
-        spList.push(_sp);
     }
 
     /**
@@ -84,13 +80,12 @@ contract TraceToSPList is Ownable, Whitelist{
     function removeSP(address _sp)
     public
     onlyOwner  {
-        spCount = spCount.sub(1);
         if(metaInfo[_sp].idx < spList.length){
             for (uint256 i = metaInfo[_sp].idx; i<spList.length-1; i = i.add(1)){
                 spList[i] = spList[i+1];
             }
             delete spList[spList.length-1];
-            spList.length = spCount;
+            spList.length = spList.length-1;
         }
         delete metaInfo[_sp];
 

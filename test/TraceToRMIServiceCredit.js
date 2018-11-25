@@ -146,4 +146,30 @@ contract('TraceToRMIServiceCredit', function(accounts) {
 
     	assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
     })
+
+    it('should be able to approve tokens more than once to rmiSP after finished', async () => {
+        await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
+        await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
+
+        let profile = 7;
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        t2tTokenContract.transferFrom(tracetoRMIServiceCredit.address, rmiSP, rate*40/100, {from: rmiSP});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100*2);
+    })
 })

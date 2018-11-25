@@ -37,6 +37,8 @@ contract TraceToServiceCredit is Ownable{
     }
 
     mapping(uint256 => RequestorPayment) PendingPayment; 
+    mapping(address => uint256) PendingSPPayment;
+    mapping(address => uint256) PendingVPayment;
 
     TraceToMetaInfo public tracetoMetaInfo;
 
@@ -47,14 +49,6 @@ contract TraceToServiceCredit is Ownable{
       */
     modifier onlyRequestor {
         require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
-        _;
-    }
-
-    /**
-      * @dev only service providers
-      */
-    modifier onlySP {
-        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
         _;
     }
 
@@ -143,18 +137,32 @@ contract TraceToServiceCredit is Ownable{
     function setFinished(uint256 _profile, address _sp)
     public
     onlyRequestor {
-        assert(
-            token.approve(
-                _sp,
-                PendingPayment[_profile]
-                    .pending[msg.sender]
-                    .tokenCount[_sp]
-                    .mul(tracetoMetaInfo.getSPPercentage())
-                    .div(100)
-                    .add(token.allowance(address(this), _sp))
-            )
-        );
-        assert(
+        if(token.allowance(address(this), _sp) == 0){
+            assert(
+                token.approve(
+                    _sp,
+                    PendingPayment[_profile]
+                        .pending[msg.sender]
+                        .tokenCount[_sp]
+                        .mul(tracetoMetaInfo.getSPPercentage())
+                        .div(100)
+                        .add(PendingSPPayment[_sp])
+                )
+            );
+            PendingSPPayment[_sp] = 0;
+        }else{
+            PendingSPPayment[_sp] = PendingSPPayment[_sp]
+                                    .add(PendingPayment[_profile]
+                                        .pending[msg.sender]
+                                        .tokenCount[_sp]
+                                        .mul(tracetoMetaInfo.getSPPercentage())
+                                        .div(100)
+                                    );
+        }
+
+        address _v = tracetoMetaInfo.getVerifierWL();
+        if(token.allowance(address(this), _v) == 0){
+            assert(
             token.approve(
                 tracetoMetaInfo.getVerifierWL(),
                 PendingPayment[_profile]
@@ -162,9 +170,21 @@ contract TraceToServiceCredit is Ownable{
                     .tokenCount[_sp]
                     .mul(tracetoMetaInfo.getVerifierPercentage())
                     .div(100)
-                    .add(token.allowance(address(this), _sp))
-            )
-        );
+                    .add(PendingVPayment[_v])
+                )
+            );
+            PendingVPayment[_v] = 0;
+        }
+        else{
+            PendingVPayment[_v] = PendingVPayment[_v]
+                                    .add(PendingPayment[_profile]
+                                        .pending[msg.sender]
+                                        .tokenCount[_sp]
+                                        .mul(tracetoMetaInfo.getVerifierPercentage())
+                                        .div(100)
+                                    );
+        }
+        
         PendingPayment[_profile].pending[msg.sender].tokenCount[_sp] = 0;
         emit Finished(msg.sender, _sp, _profile);
     }
