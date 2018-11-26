@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
-
-import "./Ownable.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./Withdrawable.sol";
 
 /**
  * @title Whitelist
  * @dev This contract is the base contract of other whitelist contract.
  */
-contract Whitelist is Ownable {
+contract Whitelist is Ownable, Withdrawable {
     string public constant ROLE_WHITELISTED = "whitelist";
 
     struct role {

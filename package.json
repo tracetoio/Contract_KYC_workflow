@@ -9,6 +9,7 @@
   "author": "dev@traceto.io",
   "license": "MIT",
   "dependencies": {
+    "openzeppelin-solidity": "^2.0.0",
     "truffle-hdwallet-provider": "0.0.3"
   }
 }

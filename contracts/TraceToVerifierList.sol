@@ -1,13 +1,14 @@
 pragma solidity ^0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "./lib/Whitelist.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
+import "./lib/Withdrawable.sol";
 
 /**
  * @title TraceToVerifierList
  * @dev This contract is the whitelist contract for verifiers.
  */
-contract TraceToVerifierList is Ownable, Whitelist {
+contract TraceToVerifierList is Whitelist, Withdrawable {
     using SafeMath for uint256;
     struct meta {
         uint256 reputation;
@@ -276,17 +277,5 @@ contract TraceToVerifierList is Ownable, Whitelist {
     view
     returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
         return (metaInfo[_verifier].reputation, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

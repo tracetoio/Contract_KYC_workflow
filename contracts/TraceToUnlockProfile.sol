@@ -1,7 +1,8 @@
 pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/Token.sol";
-import "./lib/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 import "./TraceToMetaInfo.sol";
 import "./TraceToRequestorList.sol";
@@ -123,17 +124,5 @@ contract TraceToUnlockProfile is Ownable{
             && _idx < minCount);
 
         return requests[msg.sender].RequestedProfiles[_profileHash].keyPieces[_idx];
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner  {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        require(_token.transfer( tracetoMultisig, amount ));
     }
 }

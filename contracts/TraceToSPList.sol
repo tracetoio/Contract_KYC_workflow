@@ -1,7 +1,8 @@
 pragma solidity ^0.4.24;
 import "./lib/Whitelist.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
     
 /**
  * @title TraceToSPList
@@ -176,17 +177,5 @@ contract TraceToSPList is Whitelist{
     view
     returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
         return (metaInfo[_sp].ratePerService, metaInfo[_sp].reputation, metaInfo[_sp].companyName, metaInfo[_sp].email, metaInfo[_sp].uriForRubrics, metaInfo[_sp].hashFroRubrics, metaInfo[_sp].lv);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner  {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        require(_token.transfer( tracetoMultisig, amount ));
     }
 }
