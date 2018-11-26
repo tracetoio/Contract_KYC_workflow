@@ -140,7 +140,7 @@ contract TraceToServiceCredit is Withdrawable{
     function setReview(address _sp, string _comments, uint256 _reputation)
     public
     onlyRequestor {
-        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 100);
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 10 && _reputation > 0);
         emit SPReview(msg.sender, _sp, _comments, _reputation);
     }
 

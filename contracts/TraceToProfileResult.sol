@@ -195,7 +195,7 @@ contract TraceToProfileResult is Withdrawable{
       * @dev Set a review for a SP
       * @param _sp the sp address
       * @param _comments the comment for this SP
-      * @param _reputation the reputation between 0-100
+      * @param _reputation the reputation between [1, 10]
       */
     function setReview(address _sp, string _comments, uint256 _reputation)
     public
@@ -207,7 +207,7 @@ contract TraceToProfileResult is Withdrawable{
       * @dev Set a review for a RMI SP
       * @param _sp the sp address
       * @param _comments the comment for this SP
-      * @param _reputation the reputation between 0-100
+      * @param _reputation the reputation between [1, 10]
       */
     function setRMIReview(address _sp, string _comments, uint256 _reputation)
     public
