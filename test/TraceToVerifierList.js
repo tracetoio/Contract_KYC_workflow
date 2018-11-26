@@ -30,7 +30,7 @@ contract('TraceToVerifierList', function(accounts) {
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
         let _vMeta = await tracetoVerifierList.getVerifierDetail.call(v);
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
+        await utils.expectThrow(tracetoVerifierList.getVerifierList.call(2, 0, 1));
 
         assert.equal(_isVerifier, false);
 
@@ -41,8 +41,6 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-
-        assert.equal(_vList.length, 0);
     })
 
     it("should be able to approve a pending v by owner", async () => {
@@ -59,7 +57,7 @@ contract('TraceToVerifierList', function(accounts) {
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
         let _vMeta = await tracetoVerifierList.getVerifierDetail.call(v);
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
+        let _vList = await tracetoVerifierList.getVerifierList.call(2, 0, 1);
 
         assert.equal(_isVerifier, true);
 
@@ -88,7 +86,7 @@ contract('TraceToVerifierList', function(accounts) {
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
         let _vMeta = await tracetoVerifierList.getVerifierDetail.call(v);
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
+        await utils.expectThrow(tracetoVerifierList.getVerifierList.call(2, 0, 1));
 
         assert.equal(_isVerifier, false);
 
@@ -99,8 +97,6 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-
-        assert.equal(_vList.length, 0);
     })
 
     it("should be able to remove a v by owner", async () => {
@@ -118,7 +114,7 @@ contract('TraceToVerifierList', function(accounts) {
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
         let _vMeta = await tracetoVerifierList.getVerifierDetail.call(v);
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
+        await utils.expectThrow(tracetoVerifierList.getVerifierList.call(2, 0, 1));
 
         assert.equal(_isVerifier, false);
 
@@ -129,8 +125,6 @@ contract('TraceToVerifierList', function(accounts) {
         assert.equal(_vMeta[0], 0);
         assert.equal(_vMeta[1], "");
         assert.equal(_vMeta[2], "");
-
-        assert.equal(_vList.length, 0);
     })
 
     it("should be not able to remove a v by not owner", async () => {
@@ -148,7 +142,7 @@ contract('TraceToVerifierList', function(accounts) {
         let _isVerifier = await tracetoVerifierList.isVerifier.call(v, 2);
         let _pendingVMeta = await tracetoVerifierList.getPendingVerifierDetail.call(v);
         let _vMeta = await tracetoVerifierList.getVerifierDetail.call(v);
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
+        let _vList = await tracetoVerifierList.getVerifierList.call(2, 0, 1);
 
         assert.equal(_isVerifier, true);
 
@@ -183,8 +177,7 @@ contract('TraceToVerifierList', function(accounts) {
         await tracetoVerifierList.approveVerifier(v3, 2, {from: admin});
         await tracetoVerifierList.approveVerifier(v4, 2, {from: admin});
 
-        let _vList = await tracetoVerifierList.getVerifierList.call(2);
-
+        let _vList = await tracetoVerifierList.getVerifierList.call(2, 0, 4);
 
         assert.equal(_vList.length, 4);
         assert.equal(_vList[0], v1);
@@ -194,7 +187,7 @@ contract('TraceToVerifierList', function(accounts) {
 
         await tracetoVerifierList.removeVerifier(v3, {from: admin});
 
-        _vList = await tracetoVerifierList.getVerifierList.call(2);
+        _vList = await tracetoVerifierList.getVerifierList.call(2, 0, 3);
 
         assert.equal(_vList.length, 3);
         assert.equal(_vList[0], v1);
@@ -222,10 +215,9 @@ contract('TraceToVerifierList', function(accounts) {
         await tracetoVerifierList.approveVerifier(v3, 3, {from: admin});
         await tracetoVerifierList.approveVerifier(v4, 2, {from: admin});
 
-        let _t1vList = await tracetoVerifierList.getVerifierList.call(1);
-        let _t2vList = await tracetoVerifierList.getVerifierList.call(2);
-        let _t3vList = await tracetoVerifierList.getVerifierList.call(3);
-
+        let _t1vList = await tracetoVerifierList.getVerifierList.call(1, 0, 1);
+        let _t2vList = await tracetoVerifierList.getVerifierList.call(2, 0, 2);
+        let _t3vList = await tracetoVerifierList.getVerifierList.call(3, 0, 1);
 
         assert.equal(_t1vList.length, 1);
         assert.equal(_t2vList.length, 2);
@@ -237,9 +229,9 @@ contract('TraceToVerifierList', function(accounts) {
 
         await tracetoVerifierList.updateVerifierTier(v2, 3, {from: admin});
 
-        _t1vList = await tracetoVerifierList.getVerifierList.call(1);
-        _t2vList = await tracetoVerifierList.getVerifierList.call(2);
-        _t3vList = await tracetoVerifierList.getVerifierList.call(3);
+        _t1vList = await tracetoVerifierList.getVerifierList.call(1, 0, 1);
+        _t2vList = await tracetoVerifierList.getVerifierList.call(2, 0, 1);
+        _t3vList = await tracetoVerifierList.getVerifierList.call(3, 0, 2);
 
         assert.equal(_t1vList.length, 1);
         assert.equal(_t2vList.length, 1);
@@ -253,9 +245,9 @@ contract('TraceToVerifierList', function(accounts) {
         await tracetoVerifierList.updateVerifierTier(v2, 0, {from: admin});
         await tracetoVerifierList.updateVerifierTier(v3, 1, {from: admin});
 
-        _t1vList = await tracetoVerifierList.getVerifierList.call(1);
-        _t2vList = await tracetoVerifierList.getVerifierList.call(2);
-        _t3vList = await tracetoVerifierList.getVerifierList.call(3);
+        _t1vList = await tracetoVerifierList.getVerifierList.call(1, 0, 2);
+        _t2vList = await tracetoVerifierList.getVerifierList.call(2, 0, 1);
+        _t3vList = await tracetoVerifierList.getVerifierList.call(3, 0, 1);
 
         assert.equal(_t1vList.length, 2);
         assert.equal(_t2vList.length, 1);

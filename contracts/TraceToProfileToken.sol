@@ -122,6 +122,7 @@ contract TraceToProfileToken is Withdrawable{
     function setExpiry(uint256 _tokenId, uint256 _expire)
     public
     onlySP{
+        require(profileTokens[_tokenId].expire == 0 || (_expire != 0 && _expire < profileTokens[_tokenId].expire));
         profileTokens[_tokenId].expire = _expire;
     }
 

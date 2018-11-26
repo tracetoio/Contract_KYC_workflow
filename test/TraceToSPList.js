@@ -34,7 +34,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
@@ -55,7 +55,6 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spMeta[5], "");
         assert.equal(_spMeta[6], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -76,7 +75,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp)
 
         assert.equal(_isSP, false);
@@ -97,7 +96,6 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spMeta[5], "");
         assert.equal(_spMeta[6], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -119,7 +117,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 1);
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, true);
@@ -163,7 +161,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
@@ -184,7 +182,6 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spMeta[5], "");
         assert.equal(_spMeta[6], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -207,7 +204,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
@@ -228,7 +225,6 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spMeta[5], "");
         assert.equal(_spMeta[6], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
     it("should be not able to remove a sp by not owner", async () => {
@@ -250,7 +246,7 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 1);
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, true);
@@ -300,7 +296,7 @@ contract('TraceToSPList', function(accounts) {
         await tracetoSPList.approveSP(sp3, {from: admin});
         await tracetoSPList.approveSP(sp4, {from: admin});
 
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 4);
 
         assert.equal(_spList.length, 4);
         assert.equal(_spList[0], sp1);
@@ -310,7 +306,7 @@ contract('TraceToSPList', function(accounts) {
 
         await tracetoSPList.removeSP(sp2, {from: admin});
 
-        _spList = await tracetoSPList.getSPList.call();
+        _spList = await tracetoSPList.getSPList.call(0, 3);
 
         assert.equal(_spList.length, 3);
         assert.equal(_spList[0], sp1);

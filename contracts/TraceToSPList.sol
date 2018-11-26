@@ -116,13 +116,19 @@ contract TraceToSPList is Whitelist{
 
     /**
       * @dev get the full list of SPs
+      * @param _startIdx the start idx for retreving
+      * @param _length the list length
       * @return SPs the list of SPs
       */
-    function getSPList()
+    function getSPList(uint256 _startIdx, uint256 _length)
     public
     view
     returns (address[] SPs){
-        return spList;
+        require(_startIdx+_length <= spList.length);
+        SPs = new address[](_length);
+        for (uint256 i = 0; i<_length; i++){
+            SPs[i] = spList[i+_startIdx];
+        }
     }
 
     /**

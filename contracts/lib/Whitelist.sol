@@ -36,8 +36,9 @@ contract Whitelist is Ownable, Withdrawable {
       * @param _operator the address to be added
       */
     function addAddressToWhitelist(address _operator)
-    public
+    internal
     onlyOwner {
+        require(!roles[ROLE_WHITELISTED].bearer[_operator]);
         roles[ROLE_WHITELISTED].bearer[_operator] = true;
     }
 
@@ -45,7 +46,7 @@ contract Whitelist is Ownable, Withdrawable {
       * @param _operator the address to be checked
       */
     function isWhitelisted(address _operator)
-    public
+    internal
     view
     returns (bool) {
         return roles[ROLE_WHITELISTED].bearer[_operator];
@@ -56,10 +57,10 @@ contract Whitelist is Ownable, Withdrawable {
       * @param _operators the list of addresses to be added
       */
     function addAddressesToWhitelist(address[] _operators)
-    public
+    internal
     onlyOwner {
         for (uint256 i = 0; i < _operators.length; i++) {
-          addAddressToWhitelist(_operators[i]);
+            addAddressToWhitelist(_operators[i]);
         }
     }
 
@@ -67,8 +68,9 @@ contract Whitelist is Ownable, Withdrawable {
       * @param _operator the address to be removed
       */
     function removeAddressFromWhitelist(address _operator)
-    public
+    internal
     onlyOwner {
+        require(roles[ROLE_WHITELISTED].bearer[_operator]);
         roles[ROLE_WHITELISTED].bearer[_operator] = false;
     }
 
@@ -76,7 +78,7 @@ contract Whitelist is Ownable, Withdrawable {
       * @param _operators the list of addresses to be removed
       */
     function removeAddressesFromWhitelist(address[] _operators)
-    public
+    internal
     onlyOwner {
         for (uint256 i = 0; i < _operators.length; i++) {
           removeAddressFromWhitelist(_operators[i]);

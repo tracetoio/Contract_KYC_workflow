@@ -220,20 +220,32 @@ contract TraceToVerifierList is Whitelist {
     /**
       * @dev get the full list of verifiers in the specific tier
       * @param _tier the tier of verifiers which is returning
+      * @param _startIdx the start idx for retreving
+      * @param _length the list length
       * @return verifiers the list of verifiers
       */
-    function getVerifierList(uint256 _tier)
+    function getVerifierList(uint256 _tier, uint256 _startIdx, uint256 _length)
     public
     view
     returns (address[] verifiers){
+        verifiers = new address[](_length);
         if(_tier >= 3){
-            return verifierT3List;
+            require(_startIdx+_length <= verifierT3List.length);
+            for (uint256 i = 0; i<_length; i++){
+                verifiers[i] = verifierT3List[i+_startIdx];
+            }
         }
         else if(_tier <= 1){
-            return verifierT1List;
+            require(_startIdx+_length <= verifierT1List.length);
+            for (uint256 j = 0; j<_length; j++){
+                verifiers[j] = verifierT1List[j+_startIdx];
+            }
         }
         else{
-            return verifierT2List;
+            require(_startIdx+_length <= verifierT2List.length);
+            for (uint256 k = 0; k<_length; k++){
+                verifiers[k] = verifierT2List[k+_startIdx];
+            }
         }
     }
 

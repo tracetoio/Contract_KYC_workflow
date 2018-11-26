@@ -159,7 +159,7 @@ contract TraceToProfileResult is Withdrawable{
     function setResult(uint256 _profile, string _result, uint256 _decay, uint256 _expire)
     public
     onlySP {
-        require(_decay < 10413763200 && _expire < 10413763200);
+        require(_decay < 10413763200 && _expire < 10413763200 && _expire != 0);
         if(profileInfo[_profile].expire == 0 || profileInfo[_profile].expire > _expire){
             profileInfo[_profile].expire = _expire;
         }
