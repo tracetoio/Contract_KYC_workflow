@@ -10,7 +10,11 @@ import "./TraceToVerifierList.sol";
 
 /**
  * @title TraceToProfileToken
- * @dev This contract is special NFT token contract for profiles and kyc results.
+ * @notice This contract is special inalienable KYC token contract for profiles and kyc results.
+ * @dev It consists of a profile token generated when profile is created and individual KYC token's
+ *      attached to this profile token, the kyc tokens are generated when a requestor confirms a user as 
+ *      having cleared the requestor's KYC. This can also be considered as a whitelist for the Requestor's 
+ *      user list.
  */
 contract TraceToProfileToken is Withdrawable{
     using SafeMath for uint256;
@@ -58,7 +62,7 @@ contract TraceToProfileToken is Withdrawable{
     }
 
     /**
-      * @dev Only the requestor PR in the requestor list contract.
+      * @dev Only the Requestor Profile Result Contract from the requestor whitelist contract.
       */
     modifier onlyRequestor {
         require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
@@ -66,7 +70,7 @@ contract TraceToProfileToken is Withdrawable{
     }
 
     /**
-      * @dev Only the SP in the sp list contract.
+      * @dev Only the Service Provider in the sp list contract.
       */
     modifier onlySP {
         require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender) || TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
@@ -78,7 +82,8 @@ contract TraceToProfileToken is Withdrawable{
     event RequestForRMI(uint256 profileTokenId);
 
     /** 
-      * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
+      * @dev constructor of this contract, it will transfer ownership and 
+      *      use the whitelists set in meta info contract 
       * @param owner Owner of this contract
       * @param _metaInfo meta info contract address
       */
@@ -127,7 +132,7 @@ contract TraceToProfileToken is Withdrawable{
     }
 
     /** 
-      * @dev set a profile token as RMI required
+      * @dev set a profile token as more information is (RMI) required
       * @param _tokenId the profile token id
       */
     function assignProfileAsRMI(uint256 _tokenId)

@@ -10,7 +10,7 @@ import "./TraceToSPList.sol";
 
 /**
  * @title TraceToServiceCredit
- * @dev This contract is for keeping the service balance, and notify SP to check new profiles.
+ * @dev This contract is for keeping the service balance, and notify SP to check new profiles
  */
 contract TraceToServiceCredit is Withdrawable{
     using SafeMath for uint256;
@@ -73,7 +73,9 @@ contract TraceToServiceCredit is Withdrawable{
     }
 
     /**
-      * @dev topup for one sp, it will withdraw t2t token from your wallet as deposit
+      * @dev topup for one sp, it will withdraw T2T token from your wallet as deposit
+      * @notice The service count denotes how much services the requestor is eligble for.
+      *         The token count is the amount paid by requestor.
       * @param _requestor the requestor PR contract address
       * @param _sp the sp address
       * @param _count the service count
@@ -113,6 +115,7 @@ contract TraceToServiceCredit is Withdrawable{
 
     /**
       * @dev set the profile as pending, deduct the balance
+      * @notice this is the addition of a profile, called by the requestor via the ProfileResutl contract.
       * @param _profile the profile id
       */
     function addPending(uint256 _profile)
@@ -146,6 +149,7 @@ contract TraceToServiceCredit is Withdrawable{
 
     /**
       * @dev set the profile as finished for checking, transfer token to sp and verifiers
+      *      The respective percentages are set in meta info contract
       * @param _profile the profile id
       * @param _sp the sp who provide the result
       */

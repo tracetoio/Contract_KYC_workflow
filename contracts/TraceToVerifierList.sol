@@ -5,7 +5,8 @@ import "./lib/Whitelist.sol";
 
 /**
  * @title TraceToVerifierList
- * @dev This contract is the whitelist contract for verifiers.
+ * @dev This contract is the whitelist contract for verifiers
+ *      Verifier's are split into tiers from 1-3, the third tier being the most reputed
  */
 contract TraceToVerifierList is Whitelist {
     using SafeMath for uint256;
