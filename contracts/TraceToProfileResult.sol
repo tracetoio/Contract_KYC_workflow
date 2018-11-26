@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
@@ -15,7 +14,7 @@ import "./TraceToUnlockProfile.sol";
  * @title TraceToProfileResult
  * @dev This contract is for requestor to recevice checking result.
  */
-contract TraceToProfileResult is Ownable{ 
+contract TraceToProfileResult is Withdrawable{ 
     using SafeMath for uint256;
 
     string pubKey;

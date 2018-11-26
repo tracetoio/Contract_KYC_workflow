@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
@@ -13,7 +12,7 @@ import "./TraceToVerifierList.sol";
  * @title TraceToProfileToken
  * @dev This contract is special NFT token contract for profiles and kyc results.
  */
-contract TraceToProfileToken is Ownable{
+contract TraceToProfileToken is Withdrawable{
     using SafeMath for uint256;
     struct UserProfileTokens {
         mapping(uint256 => uint256) ProfileTokenIdList;

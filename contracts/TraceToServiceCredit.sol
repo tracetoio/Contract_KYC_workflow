@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
@@ -13,7 +12,7 @@ import "./TraceToSPList.sol";
  * @title TraceToServiceCredit
  * @dev This contract is for keeping the service balance, and notify SP to check new profiles.
  */
-contract TraceToServiceCredit is Ownable{
+contract TraceToServiceCredit is Withdrawable{
     using SafeMath for uint256;
 	struct Credit{
         uint256 serviceCount;
@@ -68,7 +67,7 @@ contract TraceToServiceCredit is Ownable{
         transferOwnership(owner);
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
 
-        token = ERC20(tracetoMetaInfo.token());
+        token = IERC20(tracetoMetaInfo.token());
     }
 
     /**

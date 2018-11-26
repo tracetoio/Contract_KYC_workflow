@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
@@ -8,7 +7,7 @@ import "./lib/Withdrawable.sol";
  * @title TraceToMetaInfo
  * @dev This contract is for sharing meta data for other traceto contracts.
  */
-contract TraceToMetaInfo is Ownable, Withdrawable{
+contract TraceToMetaInfo is Withdrawable{
     using SafeMath for uint256;
 
     address public token;

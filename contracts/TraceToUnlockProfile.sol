@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
@@ -12,7 +11,7 @@ import "./TraceToVerifierList.sol";
  * @title TraceToUnlockProfile
  * @dev This contract is for requestor to request the key for profiles.
  */
-contract TraceToUnlockProfile is Ownable{
+contract TraceToUnlockProfile is Withdrawable{
     using SafeMath for uint256;
     struct ProfileKey {
         string[] keyPieces;
