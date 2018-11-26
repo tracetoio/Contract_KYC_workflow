@@ -34,28 +34,25 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
 
         assert.equal(_pendingSPMeta[0], rate);
-        assert.equal(_pendingSPMeta[1], 100);
-        assert.equal(_pendingSPMeta[2], name);
-        assert.equal(_pendingSPMeta[3], email);
-        assert.equal(_pendingSPMeta[4], uriForRubrics);
-        assert.equal(_pendingSPMeta[5], hashFroRubrics);
-        assert.equal(_pendingSPMeta[6], lv);
+        assert.equal(_pendingSPMeta[1], name);
+        assert.equal(_pendingSPMeta[2], email);
+        assert.equal(_pendingSPMeta[3], uriForRubrics);
+        assert.equal(_pendingSPMeta[4], hashFroRubrics);
+        assert.equal(_pendingSPMeta[5], lv);
 
         assert.equal(_spMeta[0], 0);
-        assert.equal(_spMeta[1], 0);
+        assert.equal(_spMeta[1], "");
         assert.equal(_spMeta[2], "");
         assert.equal(_spMeta[3], "");
         assert.equal(_spMeta[4], "");
-        assert.equal(_spMeta[5], "");
-        assert.equal(_spMeta[6], 0);
+        assert.equal(_spMeta[5], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -76,28 +73,25 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp)
 
         assert.equal(_isSP, false);
 
         assert.equal(_pendingSPMeta[0].minus(uintMax.minus(20)), 0);
-        assert.equal(_pendingSPMeta[1], 100);
-        assert.equal(_pendingSPMeta[2], name);
-        assert.equal(_pendingSPMeta[3], email);
-        assert.equal(_pendingSPMeta[4], uriForRubrics);
-        assert.equal(_pendingSPMeta[5], hashFroRubrics);
-        assert.equal(_pendingSPMeta[6], lv);
+        assert.equal(_pendingSPMeta[1], name);
+        assert.equal(_pendingSPMeta[2], email);
+        assert.equal(_pendingSPMeta[3], uriForRubrics);
+        assert.equal(_pendingSPMeta[4], hashFroRubrics);
+        assert.equal(_pendingSPMeta[5], lv);
 
         assert.equal(_spMeta[0], 0);
-        assert.equal(_spMeta[1], 0);
+        assert.equal(_spMeta[1], "");
         assert.equal(_spMeta[2], "");
         assert.equal(_spMeta[3], "");
         assert.equal(_spMeta[4], "");
-        assert.equal(_spMeta[5], "");
-        assert.equal(_spMeta[6], 0);
+        assert.equal(_spMeta[5], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -119,26 +113,24 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 1);
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, true);
 
         assert.equal(_pendingSPMeta[0], 0);
-        assert.equal(_pendingSPMeta[1], 0);
+        assert.equal(_pendingSPMeta[1], "");
         assert.equal(_pendingSPMeta[2], "");
         assert.equal(_pendingSPMeta[3], "");
         assert.equal(_pendingSPMeta[4], "");
-        assert.equal(_pendingSPMeta[5], "");
-        assert.equal(_pendingSPMeta[6], 0);
+        assert.equal(_pendingSPMeta[5], 0);
 
         assert.equal(_spMeta[0], rate);
-        assert.equal(_spMeta[1], 100);
-        assert.equal(_spMeta[2], name);
-        assert.equal(_spMeta[3], email);
-        assert.equal(_spMeta[4], uriForRubrics);
-        assert.equal(_spMeta[5], hashFroRubrics);
-        assert.equal(_spMeta[6], lv);
+        assert.equal(_spMeta[1], name);
+        assert.equal(_spMeta[2], email);
+        assert.equal(_spMeta[3], uriForRubrics);
+        assert.equal(_spMeta[4], hashFroRubrics);
+        assert.equal(_spMeta[5], lv);
 
         assert.equal(_spList.length, 1);
         assert.equal(_spList[0], sp);
@@ -163,28 +155,25 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
 
         assert.equal(_pendingSPMeta[0], rate);
-        assert.equal(_pendingSPMeta[1], 100);
-        assert.equal(_pendingSPMeta[2], name);
-        assert.equal(_pendingSPMeta[3], email);
-        assert.equal(_pendingSPMeta[4], uriForRubrics);
-        assert.equal(_pendingSPMeta[5], hashFroRubrics);
-        assert.equal(_pendingSPMeta[6], lv);
+        assert.equal(_pendingSPMeta[1], name);
+        assert.equal(_pendingSPMeta[2], email);
+        assert.equal(_pendingSPMeta[3], uriForRubrics);
+        assert.equal(_pendingSPMeta[4], hashFroRubrics);
+        assert.equal(_pendingSPMeta[5], lv);
 
         assert.equal(_spMeta[0], 0);
-        assert.equal(_spMeta[1], 0);
+        assert.equal(_spMeta[1], "");
         assert.equal(_spMeta[2], "");
         assert.equal(_spMeta[3], "");
         assert.equal(_spMeta[4], "");
-        assert.equal(_spMeta[5], "");
-        assert.equal(_spMeta[6], 0);
+        assert.equal(_spMeta[5], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
 
@@ -207,28 +196,25 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        await utils.expectThrow(tracetoSPList.getSPList.call(0, 1));
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, false);
 
         assert.equal(_pendingSPMeta[0], 0);
-        assert.equal(_pendingSPMeta[1], 0);
+        assert.equal(_pendingSPMeta[1], "");
         assert.equal(_pendingSPMeta[2], "");
         assert.equal(_pendingSPMeta[3], "");
         assert.equal(_pendingSPMeta[4], "");
-        assert.equal(_pendingSPMeta[5], "");
-        assert.equal(_pendingSPMeta[6], 0);
+        assert.equal(_pendingSPMeta[5], 0);
 
         assert.equal(_spMeta[0], 0);
-        assert.equal(_spMeta[1], 0);
+        assert.equal(_spMeta[1], "");
         assert.equal(_spMeta[2], "");
         assert.equal(_spMeta[3], "");
         assert.equal(_spMeta[4], "");
-        assert.equal(_spMeta[5], "");
-        assert.equal(_spMeta[6], 0);
+        assert.equal(_spMeta[5], 0);
 
-        assert.equal(_spList.length, 0);
         assert.equal(_spRate, 0);
     })
     it("should be not able to remove a sp by not owner", async () => {
@@ -250,26 +236,24 @@ contract('TraceToSPList', function(accounts) {
         let _isSP = await tracetoSPList.isSP.call(sp);
         let _pendingSPMeta = await tracetoSPList.getPendingSPDetail.call(sp);
         let _spMeta = await tracetoSPList.getSPDetail.call(sp);
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 1);
         let _spRate = await tracetoSPList.getSPRate.call(sp);
 
         assert.equal(_isSP, true);
 
         assert.equal(_pendingSPMeta[0], 0);
-        assert.equal(_pendingSPMeta[1], 0);
+        assert.equal(_pendingSPMeta[1], "");
         assert.equal(_pendingSPMeta[2], "");
         assert.equal(_pendingSPMeta[3], "");
         assert.equal(_pendingSPMeta[4], "");
-        assert.equal(_pendingSPMeta[5], "");
-        assert.equal(_pendingSPMeta[6], 0);
+        assert.equal(_pendingSPMeta[5], 0);
 
         assert.equal(_spMeta[0], rate);
-        assert.equal(_spMeta[1], 100);
-        assert.equal(_spMeta[2], name);
-        assert.equal(_spMeta[3], email);
-        assert.equal(_spMeta[4], uriForRubrics);
-        assert.equal(_spMeta[5], hashFroRubrics);
-        assert.equal(_spMeta[6], lv);
+        assert.equal(_spMeta[1], name);
+        assert.equal(_spMeta[2], email);
+        assert.equal(_spMeta[3], uriForRubrics);
+        assert.equal(_spMeta[4], hashFroRubrics);
+        assert.equal(_spMeta[5], lv);
 
         assert.equal(_spList.length, 1);
         assert.equal(_spList[0], sp);
@@ -300,7 +284,7 @@ contract('TraceToSPList', function(accounts) {
         await tracetoSPList.approveSP(sp3, {from: admin});
         await tracetoSPList.approveSP(sp4, {from: admin});
 
-        let _spList = await tracetoSPList.getSPList.call();
+        let _spList = await tracetoSPList.getSPList.call(0, 4);
 
         assert.equal(_spList.length, 4);
         assert.equal(_spList[0], sp1);
@@ -308,14 +292,14 @@ contract('TraceToSPList', function(accounts) {
         assert.equal(_spList[2], sp3);
         assert.equal(_spList[3], sp4);
 
-        await tracetoSPList.removeSP(sp3, {from: admin});
+        await tracetoSPList.removeSP(sp2, {from: admin});
 
-        _spList = await tracetoSPList.getSPList.call();
+        _spList = await tracetoSPList.getSPList.call(0, 3);
 
         assert.equal(_spList.length, 3);
         assert.equal(_spList[0], sp1);
-        assert.equal(_spList[1], sp2);
-        assert.equal(_spList[2], sp4);
+        assert.equal(_spList[1], sp4);
+        assert.equal(_spList[2], sp3);
     })
 
 });

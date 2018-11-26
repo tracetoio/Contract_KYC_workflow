@@ -182,7 +182,7 @@ contract('TraceToServiceCredit', function(accounts) {
         assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
     })
 
-    it('should approve tokens once to sp after finished', async () => {
+    it('should be able to approve tokens more than once to sp after finished', async () => {
         await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
         await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
@@ -194,6 +194,14 @@ contract('TraceToServiceCredit', function(accounts) {
 
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
         assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
+
+        await tracetoServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
+
+        t2tTokenContract.transferFrom(tracetoServiceCredit.address, sp, rate*40/100, {from: sp});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(sp), rate*40/100);
 
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});

@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/Token.sol";
-import "./lib/SafeMath.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 import "./TraceToMetaInfo.sol";
 import "./TraceToRequestorList.sol";
@@ -12,7 +12,7 @@ import "./TraceToVerifierList.sol";
  * @title TraceToProfileToken
  * @dev This contract is special NFT token contract for profiles and kyc results.
  */
-contract TraceToProfileToken is Ownable{
+contract TraceToProfileToken is Withdrawable{
     using SafeMath for uint256;
     struct UserProfileTokens {
         mapping(uint256 => uint256) ProfileTokenIdList;
@@ -48,16 +48,12 @@ contract TraceToProfileToken is Ownable{
     uint256 kycTokenCount;
 
     TraceToMetaInfo public tracetoMetaInfo;
-    TraceToRequestorList public tracetoRequestorList;
-    TraceToSPList public tracetoSPList;
-    TraceToSPList public tracetoRMISPList;
-    TraceToVerifierList public tracetoVerifierList;
 
     /**
       * @dev Only the tier 3 verifier in the verifier list contract.
       */
     modifier onlyVerifier {
-        require(tracetoVerifierList.isVerifier(msg.sender, 3));
+        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 3));
         _;
     }
 
@@ -65,7 +61,7 @@ contract TraceToProfileToken is Ownable{
       * @dev Only the requestor PR in the requestor list contract.
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
@@ -73,7 +69,7 @@ contract TraceToProfileToken is Ownable{
       * @dev Only the SP in the sp list contract.
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender) || tracetoRMISPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender) || TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -91,10 +87,6 @@ contract TraceToProfileToken is Ownable{
         transferOwnership(owner);
 
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /** 
@@ -130,6 +122,7 @@ contract TraceToProfileToken is Ownable{
     function setExpiry(uint256 _tokenId, uint256 _expire)
     public
     onlySP{
+        require(profileTokens[_tokenId].expire == 0 || (_expire != 0 && _expire < profileTokens[_tokenId].expire));
         profileTokens[_tokenId].expire = _expire;
     }
 
@@ -280,29 +273,5 @@ contract TraceToProfileToken is Ownable{
         for (uint256 i = 0; i<profileTokens[_tokenId].totalKYCTokens; i = i.add(1)){
             _kycTokens[i] = profileTokens[_tokenId].kycTokenIdList[i];
         }
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner  {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }

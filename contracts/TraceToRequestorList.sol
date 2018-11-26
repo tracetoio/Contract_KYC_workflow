@@ -1,12 +1,11 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 import "./lib/Whitelist.sol";
-import "./lib/Token.sol";
 
 /**
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for requesters.
  */
-contract TraceToRequestorList is Ownable, Whitelist {
+contract TraceToRequestorList is Whitelist {
     struct meta {
         string country;
         string name;
@@ -117,17 +116,5 @@ contract TraceToRequestorList is Ownable, Whitelist {
     view
     returns(string _country, string _name, string _email, string _uriForMoreDetails, string _hashForMoreDetails){
         return (metaInfo[_requestorPR].country, metaInfo[_requestorPR].name, metaInfo[_requestorPR].email, metaInfo[_requestorPR].uriForMoreDetails, metaInfo[_requestorPR].hashForMoreDetails);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner{
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }
