@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/Token.sol";
-import "./lib/SafeMath.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 import "./TraceToMetaInfo.sol";
 import "./TraceToRequestorList.sol";
@@ -11,7 +11,7 @@ import "./TraceToVerifierList.sol";
  * @title TraceToUnlockProfile
  * @dev This contract is for requestor to request the key for profiles.
  */
-contract TraceToUnlockProfile is Ownable{
+contract TraceToUnlockProfile is Withdrawable{
     using SafeMath for uint256;
     struct ProfileKey {
         string[] keyPieces;
@@ -30,7 +30,6 @@ contract TraceToUnlockProfile is Ownable{
     uint256 minCount = 10;
 
     TraceToMetaInfo public tracetoMetaInfo;
-    TraceToRequestorList public tracetoRequestorList;
     TraceToVerifierList public tracetoVerifierList;
 
     event ProfileRequested(uint256 profile, string reason, address requestor);
@@ -40,12 +39,12 @@ contract TraceToUnlockProfile is Ownable{
       * @dev Only the requestor in the requestor list contract.
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
     modifier onlyVerifier {
-        require(tracetoVerifierList.isVerifier(msg.sender, 1));
+        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 1));
         _;
     }
 
@@ -59,8 +58,6 @@ contract TraceToUnlockProfile is Ownable{
         transferOwnership(owner);
 
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
     }
 
     /**  
@@ -126,27 +123,5 @@ contract TraceToUnlockProfile is Ownable{
             && _idx < minCount);
 
         return requests[msg.sender].RequestedProfiles[_profileHash].keyPieces[_idx];
-    }
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoVerifierList = TraceToVerifierList(tracetoMetaInfo.getVerifierWL());
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner  {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }

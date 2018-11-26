@@ -15,34 +15,34 @@ var TraceToProfileResult = artifacts.require("../contracts/TraceToProfileResult.
 var utils = require("../test/utils.js");
 var BigNumber = require('bignumber.js');
 contract('TraceToProfileResult', function(accounts) {
-	let t2tTokenContract;
+    let t2tTokenContract;
     let metaInfo, rqList, spList, rmispList, vList;
-	let tracetoServiceCredit, tracetoRMIServiceCredit, tracetoProfileToken;
+    let tracetoServiceCredit, tracetoRMIServiceCredit, tracetoProfileToken;
 
     let tracetoProfileResult;
 
-	const t2tMainWallet = accounts[0];
+    const t2tMainWallet = accounts[0];
 
-	const rq = accounts[1];
-	const sp = accounts[2];
-	const rmiSP = accounts[3];
-	const t3 = accounts[4];
+    const rq = accounts[1];
+    const sp = accounts[2];
+    const rmiSP = accounts[3];
+    const t3 = accounts[4];
 
-	const admin = accounts[8];
+    const admin = accounts[8];
 
-	const rate = 20;
+    const rate = 20;
 
-	beforeEach('setup contract for each test', async () => {
-		t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
+    beforeEach('setup contract for each test', async () => {
+        t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
 
-		await t2tTokenContract.transfer(rq, 2000, {from: t2tMainWallet});
+        await t2tTokenContract.transfer(rq, 2000, {from: t2tMainWallet});
 
-		assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000);
-		assert.equal(await t2tTokenContract.balanceOf.call(sp), 0);
-		assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), 0);
-		assert.equal(await t2tTokenContract.balanceOf.call(t3), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000);
+        assert.equal(await t2tTokenContract.balanceOf.call(sp), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(t3), 0);
 
-		metaInfo = await TraceToMetaInfo.new(admin, t2tTokenContract.address, {from: accounts[9]});
+        metaInfo = await TraceToMetaInfo.new(admin, t2tTokenContract.address, {from: accounts[9]});
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
@@ -96,9 +96,9 @@ contract('TraceToProfileResult', function(accounts) {
         await tracetoRMIServiceCredit.topup(tracetoProfileResult.address, rmiSP, 30, {from: rq});
 
         assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000-rate*50);
-	})
+    })
 
-	it('has an owner', async () => {
+    it('has an owner', async () => {
         assert.equal(await tracetoProfileResult.owner(), rq)
     })
 

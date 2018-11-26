@@ -1,6 +1,7 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/SafeMath.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 import "./TraceToProfileToken.sol";
 import "./TraceToMetaInfo.sol";
@@ -21,7 +22,7 @@ import "./TraceToUnlockProfile.sol";
  * and another the RMI(Request for more information) type of service providers,
  * that can ask additional info from users
  */
-contract TraceToProfileResult is Ownable{ 
+contract TraceToProfileResult is Withdrawable{ 
     using SafeMath for uint256;
 
     string pubKey;
@@ -35,10 +36,6 @@ contract TraceToProfileResult is Ownable{
     TraceToMetaInfo public tracetoMetaInfo;
     TraceToServiceCredit public tracetoServiceCredit;
     TraceToRMIServiceCredit public tracetoRMIServiceCredit;
-    TraceToSPList public tracetoSPList;
-    TraceToSPList public tracetoRMISPList;
-
-    TraceToUnlockProfile public tracetoUnlockProfile;
 
     struct Info {
         mapping(address => Result) results;
@@ -61,12 +58,12 @@ contract TraceToProfileResult is Ownable{
       * @dev only service providers
       */
     modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
         _;
     }
 
     modifier onlyRMISP {
-        require(tracetoRMISPList.isSP(msg.sender));
+        require(TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -92,10 +89,6 @@ contract TraceToProfileResult is Ownable{
         tracetoServiceCredit = TraceToServiceCredit(_serviceCredit);
         tracetoRMIServiceCredit = TraceToRMIServiceCredit(_RMIServiceCredit);
 
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoUnlockProfile = TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile());
-
         pubKey = _pubKey;
     }
 
@@ -106,8 +99,7 @@ contract TraceToProfileResult is Ownable{
       */
     function addPending(uint256 _profile, string _consent)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         profileInfo[_profile].consent = _consent;
 
         emit ProfileConsent(_profile, _consent);
@@ -120,8 +112,7 @@ contract TraceToProfileResult is Ownable{
       */
     function addRMIPending(uint256 _profile)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         emit ProfileRMI(_profile);
         tracetoRMIServiceCredit.addPending(_profile);
     }
@@ -134,9 +125,8 @@ contract TraceToProfileResult is Ownable{
      */
     function requestProfileKey(uint256 _profile, string _reason)
     public
-    onlyOwner
-    payable {
-        tracetoUnlockProfile.requestProfileKey(_profile, _reason);
+    onlyOwner {
+        TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile()).requestProfileKey(_profile, _reason);
     }
 
     /** 
@@ -149,8 +139,7 @@ contract TraceToProfileResult is Ownable{
       */
     function assignKYCToken(uint256 _profile, string _encryptedKYCResults, uint256 _decay)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoProfileToken.assignKYCToken(_profile, _encryptedKYCResults, _decay);
     }
 
@@ -161,8 +150,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setFinished(uint256 _profile, address _sp)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoServiceCredit.setFinished(_profile, _sp);
     }
 
@@ -173,8 +161,7 @@ contract TraceToProfileResult is Ownable{
       */
     function setRMIFinished(uint256 _profile, address _sp)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         tracetoRMIServiceCredit.setFinished(_profile, _sp);
     }
 
@@ -223,6 +210,30 @@ contract TraceToProfileResult is Ownable{
     }
 
     /** 
+      * @dev Set a review for a SP
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between [1, 10]
+      */
+    function setReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyOwner {
+        TraceToServiceCredit.setReview(_sp, _comments, _reputation);
+    }
+
+    /** 
+      * @dev Set a review for a RMI SP
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between [1, 10]
+      */
+    function setRMIReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyOwner {
+        tracetoRMIServiceCredit.setReview(_sp, _comments, _reputation);
+    }
+
+    /** 
       * @dev get balance for one SP, 
       * @notice here when the requestor topup's he gets a certain amount of services. 
       * The token count is the amount paid for those services.
@@ -232,7 +243,6 @@ contract TraceToProfileResult is Ownable{
       */
     function getServiceBalance(address _sp)
     public
-    onlyOwner
     view
     returns(uint256 tokenCount, uint256 serviceCount){
         return tracetoServiceCredit.getBalance(_sp);
@@ -262,7 +272,7 @@ contract TraceToProfileResult is Ownable{
     public
     view
     returns(string keyPieces){
-        return tracetoUnlockProfile.getKey(_profileHash, _idx);
+        return TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile()).getKey(_profileHash, _idx);
     }
     
     /** 
@@ -337,8 +347,7 @@ contract TraceToProfileResult is Ownable{
       */
     function emitRENEW(uint256 _profile)
     public
-    onlyOwner
-    payable {
+    onlyOwner {
         emit RENEW(_profile);
     }
 
@@ -348,31 +357,7 @@ contract TraceToProfileResult is Ownable{
       */
     function emitRMI(uint256 _profile)
     public
-    onlyOwner
-    payable {
-        emit RMI(_profile);
-    }
-
-    /**
-      * @dev sync the whitelist contract's with meta info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-        tracetoRMISPList = TraceToSPList(tracetoMetaInfo.getRMISPWL());
-        tracetoUnlockProfile = TraceToUnlockProfile(tracetoMetaInfo.getUnlockProfile());
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
     onlyOwner {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+        emit RMI(_profile);
     }
 }

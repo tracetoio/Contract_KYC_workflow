@@ -1,14 +1,14 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 /**
  * @title TraceToMetaInfo
  * @dev This contract is for sharing meta data for other traceto contracts
  * It additionally allows us to update the smart contracts and provides a migration path
  */
-contract TraceToMetaInfo is Ownable{
+contract TraceToMetaInfo is Withdrawable{
     using SafeMath for uint256;
 
     address public token;
@@ -247,17 +247,5 @@ contract TraceToMetaInfo is Ownable{
     view
     returns (string _uriForInfoTemplate, string _hashForInfoTemplate) {
         return (uriForInfoTemplate, hashForInfoTemplate);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }

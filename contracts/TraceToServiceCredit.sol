@@ -1,7 +1,8 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+
+import "./lib/Withdrawable.sol";
 
 import "./TraceToMetaInfo.sol";
 import "./TraceToRequestorList.sol";
@@ -11,7 +12,7 @@ import "./TraceToSPList.sol";
  * @title TraceToServiceCredit
  * @dev This contract is for keeping the service balance, and notify SP to check new profiles
  */
-contract TraceToServiceCredit is Ownable{
+contract TraceToServiceCredit is Withdrawable{
     using SafeMath for uint256;
 	struct Credit{
         uint256 serviceCount;
@@ -37,32 +38,26 @@ contract TraceToServiceCredit is Ownable{
     }
 
     mapping(uint256 => RequestorPayment) PendingPayment; 
+    mapping(address => uint256) PendingSPPayment;
+    mapping(address => uint256) PendingVPayment;
 
     TraceToMetaInfo public tracetoMetaInfo;
 
-    Token public token;
-    TraceToRequestorList public tracetoRequestorList;
-    TraceToSPList public tracetoSPList;
+    IERC20 public token;
 
     /**
       * @dev only requestor who have topped up before
       */
     modifier onlyRequestor {
-        require(tracetoRequestorList.isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
-        _;
-    }
-
-    /**
-      * @dev only service providers
-      */
-    modifier onlySP {
-        require(tracetoSPList.isSP(msg.sender));
+        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
         _;
     }
 
     event Topup(address requestor, address sp, uint256 count);
     event Pending(address requestor, address sp, uint256 profile);
     event Finished(address requestor, address sp, uint256 profile);
+
+    event SPReview(address requestor, address sp, string comments, uint256 reputation);
 
     /** 
       * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
@@ -74,10 +69,7 @@ contract TraceToServiceCredit is Ownable{
         transferOwnership(owner);
         tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
 
-        token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
+        token = IERC20(tracetoMetaInfo.token());
     }
 
     /**
@@ -89,10 +81,9 @@ contract TraceToServiceCredit is Ownable{
       * @param _count the service count
       */
     function topup(address _requestor, address _sp, uint256 _count)
-    public
-    payable {
-    	require(tracetoRequestorList.isRequestorPR(_requestor) && tracetoSPList.isSP(_sp));
-    	assert(token.transferFrom(msg.sender, address(this), _count.mul(tracetoSPList.getSPRate(_sp))));
+    public {
+    	require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp));
+    	require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -100,7 +91,7 @@ contract TraceToServiceCredit is Ownable{
         }
 
         ServiceCredit[_requestor].credits[_sp].serviceCount = ServiceCredit[_requestor].credits[_sp].serviceCount.add(_count);
-        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(tracetoSPList.getSPRate(_sp)));
+        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp)));
 
         emit Topup(_requestor, _sp, _count);
     }
@@ -143,6 +134,19 @@ contract TraceToServiceCredit is Ownable{
         }
     }
 
+    /** 
+      * @dev Set a review for a SP, can only call by requestor PR contract
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between 0-100
+      */
+    function setReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyRequestor {
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 10 && _reputation > 0);
+        emit SPReview(msg.sender, _sp, _comments, _reputation);
+    }
+
     /**
       * @dev set the profile as finished for checking, transfer token to sp and verifiers
       *      The respective percentages are set in meta info contract
@@ -152,18 +156,32 @@ contract TraceToServiceCredit is Ownable{
     function setFinished(uint256 _profile, address _sp)
     public
     onlyRequestor {
-        assert(
-            token.approve(
-                _sp,
-                PendingPayment[_profile]
-                    .pending[msg.sender]
-                    .tokenCount[_sp]
-                    .mul(tracetoMetaInfo.getSPPercentage())
-                    .div(100)
-                    .add(token.allowance(address(this), _sp))
-            )
-        );
-        assert(
+        if(token.allowance(address(this), _sp) == 0){
+            require(
+                token.approve(
+                    _sp,
+                    PendingPayment[_profile]
+                        .pending[msg.sender]
+                        .tokenCount[_sp]
+                        .mul(tracetoMetaInfo.getSPPercentage())
+                        .div(100)
+                        .add(PendingSPPayment[_sp])
+                )
+            );
+            PendingSPPayment[_sp] = 0;
+        }else{
+            PendingSPPayment[_sp] = PendingSPPayment[_sp]
+                                    .add(PendingPayment[_profile]
+                                        .pending[msg.sender]
+                                        .tokenCount[_sp]
+                                        .mul(tracetoMetaInfo.getSPPercentage())
+                                        .div(100)
+                                    );
+        }
+
+        address _v = tracetoMetaInfo.getVerifierWL();
+        if(token.allowance(address(this), _v) == 0){
+            require(
             token.approve(
                 tracetoMetaInfo.getVerifierWL(),
                 PendingPayment[_profile]
@@ -171,35 +189,22 @@ contract TraceToServiceCredit is Ownable{
                     .tokenCount[_sp]
                     .mul(tracetoMetaInfo.getVerifierPercentage())
                     .div(100)
-                    .add(token.allowance(address(this), _sp))
-            )
-        );
+                    .add(PendingVPayment[_v])
+                )
+            );
+            PendingVPayment[_v] = 0;
+        }
+        else{
+            PendingVPayment[_v] = PendingVPayment[_v]
+                                    .add(PendingPayment[_profile]
+                                        .pending[msg.sender]
+                                        .tokenCount[_sp]
+                                        .mul(tracetoMetaInfo.getVerifierPercentage())
+                                        .div(100)
+                                    );
+        }
+        
         PendingPayment[_profile].pending[msg.sender].tokenCount[_sp] = 0;
         emit Finished(msg.sender, _sp, _profile);
-    }
-
-
-    /**
-      * @dev sync whitelist contract with meata info contract
-      */
-    function syncWithMetaInfo()
-    public
-    onlyOwner{
-        token = Token(tracetoMetaInfo.token());
-
-        tracetoRequestorList = TraceToRequestorList(tracetoMetaInfo.getRequestorWL());
-        tracetoSPList = TraceToSPList(tracetoMetaInfo.getSPWL());
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner  {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }
