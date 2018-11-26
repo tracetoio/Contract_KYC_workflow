@@ -46,8 +46,8 @@ pipeline {
       steps {
         withAWS(credentials: 'c7266e46-c756-4278-91a9-0055c7341c04', region: 'ap-southeast-1') {
           awsIdentity()
-          s3Upload(bucket: 'contracts.traceto.io', pathStyleAccessEnabled: true, acl: 'PublicRead', cacheControl: 'no-cache', file: "contract.environment.version_${BUILD_NUMBER}.json", path: "dev/contract.environment.version_${BUILD_NUMBER}.json")
-          s3Upload(bucket: 'contracts.traceto.io', pathStyleAccessEnabled: true, acl: 'PublicRead', cacheControl: 'no-cache', file: "contract.environment.version_${BUILD_NUMBER}.json", path: 'dev/contract.environment.version_latest.json')
+          s3Upload(bucket: 'contracts.traceto.io', pathStyleAccessEnabled: true, acl: 'PublicRead', cacheControl: 'no-cache', file: "contract.environment.version_${BUILD_NUMBER}.json", path: "dev/Contract.environment.version_${BUILD_NUMBER}.json")
+          s3Upload(bucket: 'contracts.traceto.io', pathStyleAccessEnabled: true, acl: 'PublicRead', cacheControl: 'no-cache', file: "contract.environment.version_${BUILD_NUMBER}.json", path: 'dev/Contract.environment.version_latest.json')
         }
       }
     }

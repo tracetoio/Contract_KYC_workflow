@@ -3,7 +3,7 @@ var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
 var TraceToRMIServiceCredit = artifacts.require("../contracts/TraceToRMIServiceCredit.sol");
 
@@ -42,7 +42,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -118,7 +118,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
     	await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = 7;
     	await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
 
     	let balance = await tracetoRMIServiceCredit.getBalance.call(rmiSP, {from: rqPR});
@@ -127,7 +127,7 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     })
 
     it('should be not able to set a profile as pending if there is not enough balance', async () => {
-    	let profile = 'profile 0';
+    	let profile = 7;
 
     	await utils.expectThrow(tracetoRMIServiceCredit.addPending(profile, {from: rqPR}));
 
@@ -140,10 +140,36 @@ contract('TraceToRMIServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
     	await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = 7;
     	await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
     	await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
 
     	assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+    })
+
+    it('should be able to approve tokens more than once to rmiSP after finished', async () => {
+        await t2tTokenContract.approve(tracetoRMIServiceCredit.address, rate*20, {from: rq});
+        await tracetoRMIServiceCredit.topup(rqPR, rmiSP, 20, {from: rq});
+
+        let profile = 7;
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100);
+
+        t2tTokenContract.transferFrom(tracetoRMIServiceCredit.address, rmiSP, rate*40/100, {from: rmiSP});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), rate*40/100);
+
+        await tracetoRMIServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoRMIServiceCredit.setFinished(profile, rmiSP, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoRMIServiceCredit.address, rmiSP), rate*40/100*2);
     })
 })

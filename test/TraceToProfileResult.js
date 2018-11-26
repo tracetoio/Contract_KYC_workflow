@@ -1,11 +1,13 @@
 var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 
+var TraceToProfileToken = artifacts.require("../contracts/TraceToProfileToken.sol");
+
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
-var TracetoServiceCredit = artifacts.require("../contracts/TracetoServiceCredit.sol");
+var TraceToServiceCredit = artifacts.require("../contracts/TraceToServiceCredit.sol");
 var TraceToRMIServiceCredit = artifacts.require("../contracts/TraceToRMIServiceCredit.sol");
 
 var TraceToProfileResult = artifacts.require("../contracts/TraceToProfileResult.sol");
@@ -13,38 +15,38 @@ var TraceToProfileResult = artifacts.require("../contracts/TraceToProfileResult.
 var utils = require("../test/utils.js");
 var BigNumber = require('bignumber.js');
 contract('TraceToProfileResult', function(accounts) {
-	let t2tTokenContract;
+    let t2tTokenContract;
     let metaInfo, rqList, spList, rmispList, vList;
-	let tracetoServiceCredit, tracetoRMIServiceCredit;
+    let tracetoServiceCredit, tracetoRMIServiceCredit, tracetoProfileToken;
 
     let tracetoProfileResult;
 
-	const t2tMainWallet = accounts[0];
+    const t2tMainWallet = accounts[0];
 
-	const rq = accounts[1];
-	const sp = accounts[2];
-	const rmiSP = accounts[3];
-	const t3 = accounts[4];
+    const rq = accounts[1];
+    const sp = accounts[2];
+    const rmiSP = accounts[3];
+    const t3 = accounts[4];
 
-	const admin = accounts[8];
+    const admin = accounts[8];
 
-	const rate = 20;
+    const rate = 20;
 
-	beforeEach('setup contract for each test', async () => {
-		t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
+    beforeEach('setup contract for each test', async () => {
+        t2tTokenContract = await T2TContract.new(t2tMainWallet, 3000, 0, rq);
 
-		await t2tTokenContract.transfer(rq, 2000, {from: t2tMainWallet});
+        await t2tTokenContract.transfer(rq, 2000, {from: t2tMainWallet});
 
-		assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000);
-		assert.equal(await t2tTokenContract.balanceOf.call(sp), 0);
-		assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), 0);
-		assert.equal(await t2tTokenContract.balanceOf.call(t3), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000);
+        assert.equal(await t2tTokenContract.balanceOf.call(sp), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(rmiSP), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(t3), 0);
 
-		metaInfo = await TraceToMetaInfo.new(admin, t2tTokenContract.address, {from: accounts[9]});
+        metaInfo = await TraceToMetaInfo.new(admin, t2tTokenContract.address, {from: accounts[9]});
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -69,8 +71,10 @@ contract('TraceToProfileResult', function(accounts) {
         await rmispList.addPendingSP(rate, spname, spemail, uriForRubrics, hashFroRubrics, lv, {from: rmiSP});
         await rmispList.approveSP(rmiSP, {from: admin});
 
-        tracetoServiceCredit = await TracetoServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
+        tracetoServiceCredit = await TraceToServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
         tracetoRMIServiceCredit = await TraceToRMIServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
+
+        tracetoProfileToken = await TraceToProfileToken.new(admin, metaInfo.address, {from: accounts[9]});
 
         let rqcountry = 'Singapore';
         let rqname = 'test RQ';
@@ -79,7 +83,7 @@ contract('TraceToProfileResult', function(accounts) {
         let hashForMoreDetails = '47aaf3be01cb58da5ac1f5d2999ebc5f85e173cc';
         let pubKey = 'RQ_PUBKEY';
 
-        tracetoProfileResult = await TraceToProfileResult.new(rq, metaInfo.address, tracetoServiceCredit.address, tracetoRMIServiceCredit.address, pubKey, {from: accounts[9]});
+        tracetoProfileResult = await TraceToProfileResult.new(rq, tracetoProfileToken.address, metaInfo.address, tracetoServiceCredit.address, tracetoRMIServiceCredit.address, pubKey, {from: accounts[9]});
 
         await rqList.addPendingRequestorPR(tracetoProfileResult.address, rqcountry, rqname, rqemail, uriForMoreDetails, hashForMoreDetails, {from: rq});
         await rqList.approveRequestorPR(tracetoProfileResult.address, {from: admin});
@@ -92,9 +96,9 @@ contract('TraceToProfileResult', function(accounts) {
         await tracetoRMIServiceCredit.topup(tracetoProfileResult.address, rmiSP, 30, {from: rq});
 
         assert.equal(await t2tTokenContract.balanceOf.call(rq), 2000-rate*50);
-	})
+    })
 
-	it('has an owner', async () => {
+    it('has an owner', async () => {
         assert.equal(await tracetoProfileResult.owner(), rq)
     })
 
@@ -109,7 +113,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
 
     it('should be able to set pending', async () => {
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test consent";
         await tracetoProfileResult.addPending(profile, consent, {from: rq});
         let balance = await tracetoProfileResult.getServiceBalance.call(sp, {from: rq});
@@ -123,7 +127,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set result by sp', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -137,11 +141,11 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let expire1 = 150;
+        let decay1 = 1574695773;
+        let expire1 = 1574695773;
 
-        let decay2 = 100;
-        let expire2 = 100;
+        let decay2 = 1574695773;
+        let expire2 = 1574695773;
 
         
         await tracetoProfileResult.setResult(profile, profileResult, decay1, expire1, {from: sp});
@@ -165,7 +169,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result by not sp', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -179,11 +183,11 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let expire1 = 150;
+        let decay1 = 1574695773;
+        let expire1 = 1574695773;
 
-        let decay2 = 100;
-        let expire2 = 100;
+        let decay2 = 1574695773;
+        let expire2 = 1574695773;
 
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1, expire1, {from: admin}));
 
@@ -206,7 +210,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be not able to set result with invalid time', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -220,15 +224,15 @@ contract('TraceToProfileResult', function(accounts) {
         assert.equal(_consent, consent);
 
         let profileResult = "test result";
-        let decay1 = 100;
-        let decay1Invalid = 10500000000;
-        let expire1 = 150;
-        let expire1Invalid = 10500000000;
+        let decay1Invalid = 100;
+        let decay1 = 10500000000;
+        let expire1Invalid = 150;
+        let expire1 = 10500000000;
 
-        let decay2 = 100;
-        let decay2Invalid = 10500000000;
-        let expire2 = 100;
-        let expire2Invalid = 10500000000;
+        let decay2Invalid = 100;
+        let decay2 = 10500000000;
+        let expire2Invalid = 100;
+        let expire2 = 10500000000;
 
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1Invalid, expire1, {from: sp}));
         await utils.expectThrow(tracetoProfileResult.setResult(profile, profileResult, decay1, expire1Invalid, {from: sp}));
@@ -253,7 +257,7 @@ contract('TraceToProfileResult', function(accounts) {
     })
     it('should be able to set finished by rq', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 
@@ -276,7 +280,7 @@ contract('TraceToProfileResult', function(accounts) {
 
     it('should be not able to set finished by not rq', async () => {
 
-        let profile = "test profile";
+        let profile = 1;
         let consent = "test conset";
         let pubKey = "RQ_PUBKEY";
 

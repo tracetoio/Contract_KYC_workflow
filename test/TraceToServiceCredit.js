@@ -3,13 +3,13 @@ var T2TContract = artifacts.require("../contracts/TraceToToken.sol");
 var TraceToMetaInfo = artifacts.require("../contracts/TraceToMetaInfo.sol");
 var TraceToRequestorList = artifacts.require("../contracts/TraceToRequestorList.sol");
 var TraceToSPList = artifacts.require("../contracts/TraceToSPList.sol");
-var TracetoVerifierList = artifacts.require("../contracts/TracetoVerifierList.sol");
+var TraceToVerifierList = artifacts.require("../contracts/TraceToVerifierList.sol");
 
-var TracetoServiceCredit = artifacts.require("../contracts/TracetoServiceCredit.sol");
+var TraceToServiceCredit = artifacts.require("../contracts/TraceToServiceCredit.sol");
 
 var utils = require("../test/utils.js");
 var BigNumber = require('bignumber.js');
-contract('TracetoServiceCredit', function(accounts) {
+contract('TraceToServiceCredit', function(accounts) {
 	let t2tTokenContract;
 	let tracetoServiceCredit;
 
@@ -42,7 +42,7 @@ contract('TracetoServiceCredit', function(accounts) {
         rqList = await TraceToRequestorList.new(admin, {from: accounts[9]});
         spList = await TraceToSPList.new(admin, {from: accounts[9]});
         rmispList = await TraceToSPList.new(admin, {from: accounts[9]});
-        vList = await TracetoVerifierList.new(admin, {from: accounts[9]});
+        vList = await TraceToVerifierList.new(admin, {from: accounts[9]});
 
         await metaInfo.setRequestorWL(rqList.address, {from: admin});
         await metaInfo.setSPWL(spList.address, {from: admin});
@@ -73,7 +73,7 @@ contract('TracetoServiceCredit', function(accounts) {
         await spList.addPendingSP(rate, spname, spemail, uriForRubrics, hashFroRubrics, lv, {from: sp});
         await spList.approveSP(sp, {from: admin});
 
-        tracetoServiceCredit = await TracetoServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
+        tracetoServiceCredit = await TraceToServiceCredit.new(admin, metaInfo.address, {from: accounts[9]});
 	})
 
 	it('has an owner', async () => {
@@ -129,7 +129,7 @@ contract('TracetoServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
     	await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = 7;
     	await tracetoServiceCredit.addPending(profile, {from: rqPR});
 
     	let balance = await tracetoServiceCredit.getBalance.call(sp, {from: rqPR});
@@ -141,7 +141,7 @@ contract('TracetoServiceCredit', function(accounts) {
         await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
         await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-        let profile = 'profile 0';
+        let profile = 7;
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
 
         let balance = await tracetoServiceCredit.getBalance.call(sp, {from: rqPR});
@@ -162,7 +162,7 @@ contract('TracetoServiceCredit', function(accounts) {
     })
 
     it('should be not able to set a profile as pending if there is not enough balance', async () => {
-    	let profile = 'profile 0';
+    	let profile = 7;
 
     	await utils.expectThrow(tracetoServiceCredit.addPending(profile, {from: rqPR}));
 
@@ -175,18 +175,18 @@ contract('TracetoServiceCredit', function(accounts) {
     	await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
     	await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-    	let profile = 'profile 0';
+    	let profile = 7;
     	await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
 
         assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
     })
 
-    it('should approve tokens once to sp after finished', async () => {
+    it('should be able to approve tokens more than once to sp after finished', async () => {
         await t2tTokenContract.approve(tracetoServiceCredit.address, rate*20, {from: rq});
         await tracetoServiceCredit.topup(rqPR, sp, 20, {from: rq});
 
-        let profile = 'profile 0';
+        let profile = 7;
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
 
@@ -194,6 +194,14 @@ contract('TracetoServiceCredit', function(accounts) {
 
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
         assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
+
+        await tracetoServiceCredit.addPending(profile, {from: rqPR});
+        await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), rate*40/100);
+
+        t2tTokenContract.transferFrom(tracetoServiceCredit.address, sp, rate*40/100, {from: sp});
+        assert.equal(await t2tTokenContract.allowance.call(tracetoServiceCredit.address, sp), 0);
+        assert.equal(await t2tTokenContract.balanceOf.call(sp), rate*40/100);
 
         await tracetoServiceCredit.addPending(profile, {from: rqPR});
         await tracetoServiceCredit.setFinished(profile, sp, {from: rqPR});

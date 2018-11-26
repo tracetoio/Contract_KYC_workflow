@@ -1,13 +1,14 @@
-pragma solidity ^0.4.24;
-import "./lib/Ownable.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "./lib/Withdrawable.sol";
 
 /**
  * @title TraceToMetaInfo
- * @dev This contract is for sharing meta data for other traceto contracts.
+ * @dev This contract is for sharing meta data for other traceto contracts
+ * It additionally allows us to update the smart contracts and provides a migration path
  */
-contract TraceToMetaInfo is Ownable{
+contract TraceToMetaInfo is Withdrawable{
     using SafeMath for uint256;
 
     address public token;
@@ -21,6 +22,8 @@ contract TraceToMetaInfo is Ownable{
 
     uint256 public SPPercentage;
     uint256 public VerifierPercentage;
+
+    uint256 public minimalStakeAmount;
 
     string public uriForInfoTemplate;
     string public hashForInfoTemplate;
@@ -88,6 +91,8 @@ contract TraceToMetaInfo is Ownable{
 
     /**  
       * @dev set proportion for how much token will transfer to service provider
+      * @notice this is part of the tokenomics and its the proportion per service the amounts that
+      * will be taken by the Service Provider
       * @param _SPPercentage the percentage of costs for service provider
       */
     function setSPPercentage(uint256 _SPPercentage)
@@ -99,6 +104,8 @@ contract TraceToMetaInfo is Ownable{
 
     /**  
       * @dev set proportion for how much token will transfer to verifier
+      * @notice this is the percentage that will be taken by the verifier's. The remaining is
+      * what will be utilized by the contract owner for updating the system in the future.
       * @param _VerifierPercentage the percentage for verifier
       */
     function setVerifierPercentage(uint256 _VerifierPercentage)
@@ -109,7 +116,18 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
-      * @dev set the infomation template 
+      * @dev set amount for how much token verifiers need to deposit before joining
+      * @param _minimalStakeAmount the amount of USDT
+      */
+    function setMinimalStakeAmount(uint256 _minimalStakeAmount) 
+    public
+    onlyOwner {
+        minimalStakeAmount = _minimalStakeAmount;
+    }
+
+    /**  
+      * @dev set the infomation template, example gist at 
+      * https://gist.github.com/tracetoio-dias/f651ff0a3de0970cc87e09d8058071db
       * @param _uriForInfoTemplate the IPFS link for Info template
       * @param _hashForInfoTemplate the hash of the JSON object
       */
@@ -121,7 +139,7 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
-      * @dev get t2t token contract
+      * @dev get T2T token contract
       * @return _t2tContract the address of t2t token contract
       */
     function getTokenContract()
@@ -174,7 +192,6 @@ contract TraceToMetaInfo is Ownable{
     returns (address _SPRMIWL) {
       return spRMIWL;
     }
-
     
     /**  
       * @dev get unlock profile contract
@@ -210,6 +227,17 @@ contract TraceToMetaInfo is Ownable{
     }
 
     /**  
+      * @dev get amount for how much token verifiers need to deposit before joining
+      * @return _minimalStakeAmount the amount of usdt
+      */
+    function getMinimalStakeAmount() 
+    public
+    view
+    returns (uint256 _minimalStakeAmount)  {
+        return minimalStakeAmount;
+    }
+
+    /**  
       * @dev get the infomation template 
       * @return _uriForInfoTemplate the IPFS link for Info template
       * @return _hashForInfoTemplate the hash of the JSON object
@@ -219,17 +247,5 @@ contract TraceToMetaInfo is Ownable{
     view
     returns (string _uriForInfoTemplate, string _hashForInfoTemplate) {
         return (uriForInfoTemplate, hashForInfoTemplate);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
     }
 }

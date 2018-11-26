@@ -1,20 +1,19 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "./lib/Whitelist.sol";
-import "./lib/SafeMath.sol";
-import "./lib/Token.sol";
 
 /**
  * @title TraceToVerifierList
- * @dev This contract is the whitelist contract for verifiers.
+ * @dev This contract is the whitelist contract for verifiers
+ *      Verifier's are split into tiers from 1-3, the third tier being the most reputed
  */
-contract TraceToVerifierList is Ownable, Whitelist {
+contract TraceToVerifierList is Whitelist {
     using SafeMath for uint256;
     struct meta {
         uint256 reputation;
-        string name;
         string urlForUploading;
         string hashForUploading;
-        address stake;
         uint256 tier;
         uint256 idx;
     }
@@ -49,14 +48,12 @@ contract TraceToVerifierList is Ownable, Whitelist {
 
     /**  
       * @dev add the current wallet as a pending verifier
-      * @param _name name for this verifier
       * @param _urlForUploading the url for end user to upload their profiles
       * @param _hashForUploading the hash for the url
-      * @param _stake the wallet to keep t2t tokens, will use this in next phase
       */
-    function addPendingVerifier(string _name, string _urlForUploading, string _hashForUploading, address _stake)
+    function addPendingVerifier(string _urlForUploading, string _hashForUploading)
     public {
-        pendingMetaInfo[msg.sender] = meta(100, _name, _urlForUploading, _hashForUploading, _stake, 0, 0);
+        pendingMetaInfo[msg.sender] = meta(100, _urlForUploading, _hashForUploading, 0, 0);
 
         emit NewPendingVerifier(msg.sender);
     }
@@ -224,20 +221,32 @@ contract TraceToVerifierList is Ownable, Whitelist {
     /**
       * @dev get the full list of verifiers in the specific tier
       * @param _tier the tier of verifiers which is returning
+      * @param _startIdx the start idx for retreving
+      * @param _length the list length
       * @return verifiers the list of verifiers
       */
-    function getVerifierList(uint256 _tier)
+    function getVerifierList(uint256 _tier, uint256 _startIdx, uint256 _length)
     public
     view
     returns (address[] verifiers){
+        verifiers = new address[](_length);
         if(_tier >= 3){
-            return verifierT3List;
+            require(_startIdx+_length <= verifierT3List.length);
+            for (uint256 i = 0; i<_length; i++){
+                verifiers[i] = verifierT3List[i+_startIdx];
+            }
         }
         else if(_tier <= 1){
-            return verifierT1List;
+            require(_startIdx+_length <= verifierT1List.length);
+            for (uint256 j = 0; j<_length; j++){
+                verifiers[j] = verifierT1List[j+_startIdx];
+            }
         }
         else{
-            return verifierT2List;
+            require(_startIdx+_length <= verifierT2List.length);
+            for (uint256 k = 0; k<_length; k++){
+                verifiers[k] = verifierT2List[k+_startIdx];
+            }
         }
     }
 
@@ -258,43 +267,27 @@ contract TraceToVerifierList is Ownable, Whitelist {
       * @dev check get details of a pending verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getPendingVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].name, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading, pendingMetaInfo[_verifier].stake);
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (pendingMetaInfo[_verifier].reputation, pendingMetaInfo[_verifier].urlForUploading, pendingMetaInfo[_verifier].hashForUploading);
     }
 
     /**
       * @dev check get details of a verifier
       * @param _verifier the verifier wallet
       * @return _reputation the reputation
-      * @return _name name for this verifier
       * @return _urlForUploading url for uploading
       * @return _hashForUploading hash for the url
-      * @return _stake will be used in the next phase
       */
     function getVerifierDetail(address _verifier)
     public
     view
-    returns (uint256 _reputation, string _name, string _urlForUploading, string _hashForUploading, address _stake) {
-        return (metaInfo[_verifier].reputation, metaInfo[_verifier].name, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading, metaInfo[_verifier].stake);
-    }
-
-    /**
-      * @dev transfer ERC20 token out in emergency cases, can be only called by the contract owner
-      * @param _token the token contract address
-      * @param amount the amount going to be transfer
-      */
-    function emergencyERC20Drain(Token _token, uint256 amount )
-    public
-    onlyOwner {
-        address tracetoMultisig = 0x146f2Fba9EBa1b72d5162a56e3E5da6C0f4808Cc;
-        _token.transfer( tracetoMultisig, amount );
+    returns (uint256 _reputation, string _urlForUploading, string _hashForUploading) {
+        return (metaInfo[_verifier].reputation, metaInfo[_verifier].urlForUploading, metaInfo[_verifier].hashForUploading);
     }
 }

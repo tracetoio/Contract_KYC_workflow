@@ -8,8 +8,8 @@ const fs = require('fs');
 
 /*----------------------------------------------------------------*/
 /*---------------------SETUP ENVIRONMENT START--------------------*/
-const token_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/token.environment.version_latest.json';
-const contracts_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/contract.environment.version_latest.json';
+const token_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/Token.environment.version_latest.json';
+const contracts_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/Contract.environment.version_latest.json';
 const details_url = 'https://s3-ap-southeast-1.amazonaws.com/contracts.traceto.io/dev/details.environment.version_latest.json';
 let contracts = JSON.parse(syncRequest('GET', contracts_url).getBody());
 // let contracts = require("./environment.json")
@@ -83,9 +83,9 @@ const RMISPPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].priva
 // console.log("RMISP: ", RMISPAddress, RMISPPubKey, RMISPPriKey)
 
 web3.eth.accounts.wallet.add(web3.eth.accounts.privateKeyToAccount(VPriKey));
-web3.eth.defaultAccount = web3.eth.accounts.wallet[3].address;
-const VAddress = web3.eth.accounts.wallet[3].address;
-const VPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[3].privateKey).toString('hex');
+web3.eth.defaultAccount = web3.eth.accounts.wallet[4].address;
+const VAddress = web3.eth.accounts.wallet[4].address;
+const VPubKey = '0x'+eutil.privateToPublic(web3.eth.accounts.wallet[4].privateKey).toString('hex');
 // console.log("V: ", VAddress, VPubKey, VPriKey)
 /*---------------------SETUP WALLET END---------------------------*/
 /*----------------------------------------------------------------*/
@@ -138,21 +138,21 @@ let addRMISP = function(rmisp, gasPrice, callback){
 		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
 		.then(function(receipt){
 			console.log(receipt);
-
+			callback();
 		});
 	});
 }
 
 let addV = function(v ,gasPrice, callback){
-	vContract.methods.addPendingVerifier(v.name, v.urlForUploading, v.hashForUploading, v.stake)
+	vContract.methods.addPendingVerifier(v.urlForUploading, v.hashForUploading)
 	.send({from: VAddress, gas: 7500000, gasPrice: gasPrice * 4})
 	.then(function(receipt){
 		console.log(receipt);
-		vContract.methods.approveVerifier(VAddress)
+		vContract.methods.approveVerifier(VAddress, 3)
 		.send({from: adminAddress, gas: 7500000, gasPrice: gasPrice * 4})
 		.then(function(receipt){
 			console.log(receipt);
-
+			callback();
 		});
 	});
 }
@@ -166,7 +166,7 @@ web3.eth.getGasPrice(function(err, gasPrice){
 	prContract.options.gas = 7500000;
 
 	prContract.deploy({
-		arguments: [RQAddress, environment.TraceToMetaInfo.address, environment.TraceToServiceCredit.address, environment.TraceToRMIServiceCredit.address, RQPubKey]
+		arguments: [RQAddress, environment.TraceToProfileToken.address, environment.TraceToMetaInfo.address, environment.TraceToServiceCredit.address, environment.TraceToRMIServiceCredit.address, RQPubKey]
 	}).send({
 		from: RQAddress,
 	}, console.log)

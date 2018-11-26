@@ -1,6 +1,11 @@
 {
 	"admin": "%admin%",
 	"t2tContract": "%t2t%",
+	"minStakeAmount": 10000000000000000000,
+	"tusd": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+	"blkWindow": 100,
 	"spPercentage": 40,
-	"verifierPercentage": 40
+	"verifierPercentage": 40,
+	"uriForProfileMetadataModel": "QmQod9TadZWTnnZYpN54uLAEz7KmghWGS61gX4xEX15mWf",
+	"hashForProfileMetadataModel": "cceb34edc86e55aed7e8c3404b92d9f5bfc65c28"
 }
