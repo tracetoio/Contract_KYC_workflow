@@ -57,6 +57,8 @@ contract TraceToServiceCredit is Withdrawable{
     event Pending(address requestor, address sp, uint256 profile);
     event Finished(address requestor, address sp, uint256 profile);
 
+    event SPReview(address requestor, address sp, string comments, uint256 reputation);
+
     /** 
       * @dev constructor of this contract, it will transfer ownership and use the whitelists set in meta info contract 
       * @param owner Owner of this contract
@@ -127,6 +129,19 @@ contract TraceToServiceCredit is Withdrawable{
                 emit Pending(msg.sender, _sp, _profile);
             }
         }
+    }
+
+    /** 
+      * @dev Set a review for a SP, can only call by requestor PR contract
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between 0-100
+      */
+    function setReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyRequestor {
+        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 100);
+        emit SPReview(msg.sender, _sp, _comments, _reputation);
     }
 
     /**

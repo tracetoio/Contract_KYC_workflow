@@ -192,6 +192,30 @@ contract TraceToProfileResult is Withdrawable{
     }
 
     /** 
+      * @dev Set a review for a SP
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between 0-100
+      */
+    function setReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyOwner {
+        TraceToServiceCredit.setReview(_sp, _comments, _reputation);
+    }
+
+    /** 
+      * @dev Set a review for a RMI SP
+      * @param _sp the sp address
+      * @param _comments the comment for this SP
+      * @param _reputation the reputation between 0-100
+      */
+    function setRMIReview(address _sp, string _comments, uint256 _reputation)
+    public
+    onlyOwner {
+        tracetoRMIServiceCredit.setReview(_sp, _comments, _reputation);
+    }
+
+    /** 
       * @dev get balance for one SP
       * @param _sp the sp going to be checked
       * @return tokenCount the token deposit in the SC contract

@@ -13,7 +13,6 @@ contract TraceToSPList is Whitelist{
     
     struct meta {
         uint256 ratePerService;
-        uint256 reputation;
         string companyName;
         string email;
         string uriForRubrics;
@@ -54,7 +53,7 @@ contract TraceToSPList is Whitelist{
       */
     function addPendingSP(uint256 _rate, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv)
     public {
-        pendingMetaInfo[msg.sender] = meta(_rate, 100, _companyName, _email, _uriForRubrics, _hashFroRubrics, _lv, 0);
+        pendingMetaInfo[msg.sender] = meta(_rate, _companyName, _email, _uriForRubrics, _hashFroRubrics, _lv, 0);
 
         emit NewPendingSP(msg.sender);
     }
@@ -90,17 +89,6 @@ contract TraceToSPList is Whitelist{
         delete metaInfo[_sp];
 
         removeAddressFromWhitelist(_sp);
-    }
-
-    /**
-      * @dev Update reputation for a sp, only can be called by the owner
-      * @param _sp the address of this sp
-      * @param _reputation the updated reputation
-      */
-    function setReputation(address _sp, uint256 _reputation)
-    public
-    onlyOwner {
-        metaInfo[_sp].reputation = _reputation;
     }
 
     /**
@@ -166,8 +154,8 @@ contract TraceToSPList is Whitelist{
     function getPendingSPDetail(address _sp)
     public
     view
-    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
-        return (pendingMetaInfo[_sp].ratePerService, pendingMetaInfo[_sp].reputation, pendingMetaInfo[_sp].companyName, pendingMetaInfo[_sp].email, pendingMetaInfo[_sp].uriForRubrics, pendingMetaInfo[_sp].hashFroRubrics, pendingMetaInfo[_sp].lv);
+    returns (uint256 _rate, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
+        return (pendingMetaInfo[_sp].ratePerService, pendingMetaInfo[_sp].companyName, pendingMetaInfo[_sp].email, pendingMetaInfo[_sp].uriForRubrics, pendingMetaInfo[_sp].hashFroRubrics, pendingMetaInfo[_sp].lv);
     }
 
     /**
@@ -181,7 +169,7 @@ contract TraceToSPList is Whitelist{
     function getSPDetail(address _sp)
     public
     view
-    returns (uint256 _rate, uint256 _reputation, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
-        return (metaInfo[_sp].ratePerService, metaInfo[_sp].reputation, metaInfo[_sp].companyName, metaInfo[_sp].email, metaInfo[_sp].uriForRubrics, metaInfo[_sp].hashFroRubrics, metaInfo[_sp].lv);
+    returns (uint256 _rate, string _companyName, string _email, string _uriForRubrics, string _hashFroRubrics, uint256 _lv){
+        return (metaInfo[_sp].ratePerService, metaInfo[_sp].companyName, metaInfo[_sp].email, metaInfo[_sp].uriForRubrics, metaInfo[_sp].hashFroRubrics, metaInfo[_sp].lv);
     }
 }
