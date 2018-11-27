@@ -218,7 +218,7 @@ contract TraceToProfileResult is Withdrawable{
     function setReview(address _sp, string _comments, uint256 _reputation)
     public
     onlyOwner {
-        TraceToServiceCredit.setReview(_sp, _comments, _reputation);
+        tracetoServiceCredit.setReview(_sp, _comments, _reputation);
     }
 
     /** 
