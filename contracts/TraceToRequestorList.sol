@@ -1,11 +1,13 @@
 pragma solidity 0.4.24;
 import "./lib/Whitelist.sol";
 
+import "./TraceToRequestorListInterface.sol";
+
 /**
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for requestors.
  */
-contract TraceToRequestorList is Whitelist {
+contract TraceToRequestorList is Whitelist, TraceToRequestorListInterface{
     struct meta {
         string country;
         string name;

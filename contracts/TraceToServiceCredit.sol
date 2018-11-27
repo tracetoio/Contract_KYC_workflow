@@ -4,15 +4,17 @@ import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 import "./lib/Withdrawable.sol";
 
-import "./TraceToMetaInfo.sol";
-import "./TraceToRequestorList.sol";
-import "./TraceToSPList.sol";
+import "./TraceToMetaInfoInterface.sol";
+import "./TraceToRequestorListInterface.sol";
+import "./TraceToSPListInterface.sol";
+
+import "./TraceToServiceCreditInterface.sol";
 
 /**
  * @title TraceToServiceCredit
  * @dev This contract is for keeping the service balance, and notify SP to check new profiles
  */
-contract TraceToServiceCredit is Withdrawable{
+contract TraceToServiceCredit is Withdrawable, TraceToServiceCreditInterface{
     using SafeMath for uint256;
 	struct Credit{
         uint256 serviceCount;
@@ -41,7 +43,7 @@ contract TraceToServiceCredit is Withdrawable{
     mapping(address => uint256) PendingSPPayment;
     mapping(address => uint256) PendingVPayment;
 
-    TraceToMetaInfo public tracetoMetaInfo;
+    TraceToMetaInfoInterface public tracetoMetaInfo;
 
     IERC20 public token;
 
@@ -49,7 +51,7 @@ contract TraceToServiceCredit is Withdrawable{
       * @dev only requestor who have topped up before
       */
     modifier onlyRequestor {
-        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
+        require(TraceToRequestorListInterface(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender) && ServiceCredit[msg.sender].spCount > 0);
         _;
     }
 
@@ -67,9 +69,9 @@ contract TraceToServiceCredit is Withdrawable{
 	constructor(address owner, address _metaInfo)
     public {
         transferOwnership(owner);
-        tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
+        tracetoMetaInfo = TraceToMetaInfoInterface(_metaInfo);
 
-        token = IERC20(tracetoMetaInfo.token());
+        token = IERC20(tracetoMetaInfo.getTokenContract());
     }
 
     /**
@@ -82,8 +84,8 @@ contract TraceToServiceCredit is Withdrawable{
       */
     function topup(address _requestor, address _sp, uint256 _count)
     public {
-    	require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp));
-    	require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
+    	require(TraceToRequestorListInterface(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPListInterface(tracetoMetaInfo.getSPWL()).isSP(_sp));
+    	require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPListInterface(tracetoMetaInfo.getSPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -91,7 +93,7 @@ contract TraceToServiceCredit is Withdrawable{
         }
 
         ServiceCredit[_requestor].credits[_sp].serviceCount = ServiceCredit[_requestor].credits[_sp].serviceCount.add(_count);
-        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPList(tracetoMetaInfo.getSPWL()).getSPRate(_sp)));
+        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPListInterface(tracetoMetaInfo.getSPWL()).getSPRate(_sp)));
 
         emit Topup(_requestor, _sp, _count);
     }
@@ -143,7 +145,7 @@ contract TraceToServiceCredit is Withdrawable{
     function setReview(address _sp, string _comments, uint256 _reputation)
     public
     onlyRequestor {
-        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 10 && _reputation > 0);
+        require(TraceToSPListInterface(tracetoMetaInfo.getSPWL()).isSP(_sp) && _reputation <= 10 && _reputation > 0);
         emit SPReview(msg.sender, _sp, _comments, _reputation);
     }
 

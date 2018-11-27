@@ -2,6 +2,7 @@ pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
+import "./TraceToMetaInfoInterface.sol";
 
 /**
  * @title TraceToMetaInfo

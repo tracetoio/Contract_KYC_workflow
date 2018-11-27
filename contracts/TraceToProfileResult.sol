@@ -3,12 +3,13 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
 
-import "./TraceToProfileToken.sol";
-import "./TraceToMetaInfo.sol";
-import "./TraceToServiceCredit.sol";
-import "./TraceToRMIServiceCredit.sol";
-import "./TraceToSPList.sol";
+import "./TraceToProfileTokenInterface.sol";
+import "./TraceToMetaInfoInterface.sol";
+import "./TraceToServiceCreditInterface.sol";
+import "./TraceToSPListInterface.sol";
 import "./TraceToUnlockProfile.sol";
+
+import "./TraceToProfileResultInterface.sol";
 
 /**
  * @title TraceToProfileResult
@@ -22,7 +23,7 @@ import "./TraceToUnlockProfile.sol";
  * and another the RMI(Request for more information) type of service providers,
  * that can ask additional info from users
  */
-contract TraceToProfileResult is Withdrawable{ 
+contract TraceToProfileResult is Withdrawable, TraceToProfileResultInterface{ 
     using SafeMath for uint256;
 
     string pubKey;
@@ -32,10 +33,10 @@ contract TraceToProfileResult is Withdrawable{
         uint256 decay;
     }
 
-    TraceToProfileToken public tracetoProfileToken;
-    TraceToMetaInfo public tracetoMetaInfo;
-    TraceToServiceCredit public tracetoServiceCredit;
-    TraceToRMIServiceCredit public tracetoRMIServiceCredit;
+    TraceToProfileTokenInterface public tracetoProfileToken;
+    TraceToMetaInfoInterface public tracetoMetaInfo;
+    TraceToServiceCreditInterface public tracetoServiceCredit;
+    TraceToServiceCreditInterface public tracetoRMIServiceCredit;
 
     struct Info {
         mapping(address => Result) results;
@@ -58,12 +59,12 @@ contract TraceToProfileResult is Withdrawable{
       * @dev only service providers
       */
     modifier onlySP {
-        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
+        require(TraceToSPListInterface(tracetoMetaInfo.getSPWL()).isSP(msg.sender));
         _;
     }
 
     modifier onlyRMISP {
-        require(TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
+        require(TraceToSPListInterface(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -84,10 +85,10 @@ contract TraceToProfileResult is Withdrawable{
       string _pubKey)
     public {
         transferOwnership(owner);
-        tracetoProfileToken = TraceToProfileToken(_profileToken);
-        tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
-        tracetoServiceCredit = TraceToServiceCredit(_serviceCredit);
-        tracetoRMIServiceCredit = TraceToRMIServiceCredit(_RMIServiceCredit);
+        tracetoProfileToken = TraceToProfileTokenInterface(_profileToken);
+        tracetoMetaInfo = TraceToMetaInfoInterface(_metaInfo);
+        tracetoServiceCredit = TraceToServiceCreditInterface(_serviceCredit);
+        tracetoRMIServiceCredit = TraceToServiceCreditInterface(_RMIServiceCredit);
 
         pubKey = _pubKey;
     }
