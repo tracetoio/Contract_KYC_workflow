@@ -9,7 +9,7 @@ import "./TraceToMetaInfoInterface.sol";
  * @dev This contract is for sharing meta data for other traceto contracts
  * It additionally allows us to update the smart contracts and provides a migration path
  */
-contract TraceToMetaInfo is Withdrawable{
+contract TraceToMetaInfo is Withdrawable, TraceToMetaInfoInterface{
     using SafeMath for uint256;
 
     address public token;
