@@ -22,8 +22,8 @@ contract TraceToRMIServiceCredit is TraceToServiceCredit{
       */
     function topup(address _requestor, address _sp, uint256 _count)
     public {
-        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(_sp));
-        require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPList(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp))));
+        require(TraceToRequestorListInterface(tracetoMetaInfo.getRequestorWL()).isRequestorPR(_requestor) && TraceToSPListInterface(tracetoMetaInfo.getRMISPWL()).isSP(_sp));
+        require(token.transferFrom(msg.sender, address(this), _count.mul(TraceToSPListInterface(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp))));
         if(!ServiceCredit[_requestor].credits[_sp].isInit){
             ServiceCredit[_requestor].sp.push(_sp);
             ServiceCredit[_requestor].spCount = ServiceCredit[_requestor].spCount.add(1);
@@ -31,7 +31,7 @@ contract TraceToRMIServiceCredit is TraceToServiceCredit{
         }
 
         ServiceCredit[_requestor].credits[_sp].serviceCount = ServiceCredit[_requestor].credits[_sp].serviceCount.add(_count);
-        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPList(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp)));
+        ServiceCredit[_requestor].credits[_sp].tokenCount = ServiceCredit[_requestor].credits[_sp].tokenCount.add(_count.mul(TraceToSPListInterface(tracetoMetaInfo.getRMISPWL()).getSPRate(_sp)));
 
         emit Topup(_requestor, _sp, _count);
     }

@@ -3,10 +3,12 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
 
-import "./TraceToMetaInfo.sol";
-import "./TraceToRequestorList.sol";
-import "./TraceToSPList.sol";
-import "./TraceToVerifierList.sol";
+import "./TraceToMetaInfoInterface.sol";
+import "./TraceToRequestorListInterface.sol";
+import "./TraceToSPListInterface.sol";
+import "./TraceToVerifierListInterface.sol";
+
+import "./TraceToProfileTokenInterface.sol";
 
 /**
  * @title TraceToProfileToken
@@ -16,7 +18,7 @@ import "./TraceToVerifierList.sol";
  *      having cleared the requestor's KYC. This can also be considered as a whitelist for the Requestor's 
  *      user list.
  */
-contract TraceToProfileToken is Withdrawable{
+contract TraceToProfileToken is Withdrawable, TraceToProfileTokenInterface{
     using SafeMath for uint256;
     struct UserProfileTokens {
         mapping(uint256 => uint256) ProfileTokenIdList;
@@ -51,13 +53,13 @@ contract TraceToProfileToken is Withdrawable{
     uint256 profileTokenCount;
     uint256 kycTokenCount;
 
-    TraceToMetaInfo public tracetoMetaInfo;
+    TraceToMetaInfoInterface public tracetoMetaInfo;
 
     /**
       * @dev Only the tier 3 verifier in the verifier list contract.
       */
     modifier onlyVerifier {
-        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 3));
+        require(TraceToVerifierListInterface(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 3));
         _;
     }
 
@@ -65,7 +67,7 @@ contract TraceToProfileToken is Withdrawable{
       * @dev Only the Requestor Profile Result Contract from the requestor whitelist contract.
       */
     modifier onlyRequestor {
-        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
+        require(TraceToRequestorListInterface(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
@@ -73,7 +75,7 @@ contract TraceToProfileToken is Withdrawable{
       * @dev Only the Service Provider in the sp list contract.
       */
     modifier onlySP {
-        require(TraceToSPList(tracetoMetaInfo.getSPWL()).isSP(msg.sender) || TraceToSPList(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
+        require(TraceToSPListInterface(tracetoMetaInfo.getSPWL()).isSP(msg.sender) || TraceToSPListInterface(tracetoMetaInfo.getRMISPWL()).isSP(msg.sender));
         _;
     }
 
@@ -91,7 +93,7 @@ contract TraceToProfileToken is Withdrawable{
     public {
         transferOwnership(owner);
 
-        tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
+        tracetoMetaInfo = TraceToMetaInfoInterface(_metaInfo);
     }
 
     /** 
