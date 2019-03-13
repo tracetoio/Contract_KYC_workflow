@@ -3,12 +3,14 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Whitelist.sol";
 import "./lib/Withdrawable.sol";
+
+import "./TraceToSPListInterface.sol";
     
 /**
  * @title TraceToSPList
  * @dev This contract is the whitelist contract for service providers.
  */
-contract TraceToSPList is Whitelist{
+contract TraceToSPList is Whitelist, TraceToSPListInterface{
     using SafeMath for uint256;
     
     struct meta {

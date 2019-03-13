@@ -3,15 +3,17 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Withdrawable.sol";
 
-import "./TraceToMetaInfo.sol";
-import "./TraceToRequestorList.sol";
-import "./TraceToVerifierList.sol";
+import "./TraceToMetaInfoInterface.sol";
+import "./TraceToRequestorListInterface.sol";
+import "./TraceToVerifierListInterface.sol";
+
+import "./TraceToUnlockProfileInterface.sol";
 
 /**
  * @title TraceToUnlockProfile
  * @dev This contract is for requestor to request the key for profiles.
  */
-contract TraceToUnlockProfile is Withdrawable{
+contract TraceToUnlockProfile is Withdrawable, TraceToUnlockProfileInterface{
     using SafeMath for uint256;
     struct ProfileKey {
         string[] keyPieces;
@@ -29,8 +31,8 @@ contract TraceToUnlockProfile is Withdrawable{
 
     uint256 minCount = 10;
 
-    TraceToMetaInfo public tracetoMetaInfo;
-    TraceToVerifierList public tracetoVerifierList;
+    TraceToMetaInfoInterface public tracetoMetaInfo;
+    TraceToVerifierListInterface public tracetoVerifierList;
 
     event ProfileRequested(uint256 profile, string reason, address requestor);
     event KeyShared(uint256 profile, address requestor);
@@ -39,12 +41,12 @@ contract TraceToUnlockProfile is Withdrawable{
       * @dev Only the requestor in the requestor list contract.
       */
     modifier onlyRequestor {
-        require(TraceToRequestorList(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
+        require(TraceToRequestorListInterface(tracetoMetaInfo.getRequestorWL()).isRequestorPR(msg.sender));
         _;
     }
 
     modifier onlyVerifier {
-        require(TraceToVerifierList(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 1));
+        require(TraceToVerifierListInterface(tracetoMetaInfo.getVerifierWL()).isVerifier(msg.sender, 1));
         _;
     }
 
@@ -57,7 +59,7 @@ contract TraceToUnlockProfile is Withdrawable{
     public {
         transferOwnership(owner);
 
-        tracetoMetaInfo = TraceToMetaInfo(_metaInfo);
+        tracetoMetaInfo = TraceToMetaInfoInterface(_metaInfo);
     }
 
     /**  

@@ -2,13 +2,14 @@ pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./lib/Whitelist.sol";
+import "./TraceToVerifierListInterface.sol";
 
 /**
  * @title TraceToVerifierList
  * @dev This contract is the whitelist contract for verifiers
  *      Verifier's are split into tiers from 1-3, the third tier being the most reputed
  */
-contract TraceToVerifierList is Whitelist {
+contract TraceToVerifierList is Whitelist, TraceToVerifierListInterface{
     using SafeMath for uint256;
     struct meta {
         uint256 reputation;
